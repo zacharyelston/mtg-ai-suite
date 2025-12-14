@@ -13,7 +13,9 @@ pub fn v1_routes() -> Router {
         .route("/auth/verify", post(auth_verify))
         // Cards
         .route("/cards", get(cards::list_cards))
+        .route("/cards/search", get(cards::list_cards))
         .route("/cards/autocomplete", get(cards::autocomplete))
+        .route("/cards/random", get(cards::random_card))
         .route("/cards/:id", get(cards::get_card))
         // Captures
         .route("/captures", get(captures::list_captures))

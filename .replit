@@ -16,42 +16,34 @@ DATABASE_URL = "sqlite:./data/dev.db"
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Project"
-mode = "parallel"
+name = "Frontend"
 author = "agent"
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mkdir -p data && cargo run --bin mtg-server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Frontend"
-
-[[workflows.workflow]]
-name = "Frontend"
-author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd frontend && npm run dev"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Backend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=8000 ./target/debug/mtg-server"
+waitForPort = 8000
+
 [workflows.workflow.metadata]
-outputType = "webview"
+outputType = "console"
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 8080
-externalPort = 80
-
 [deployment]
-deploymentTarget = "autoscale"
-run = ["sh", "-c", "mkdir -p data && cargo run --release --bin mtg-server"]
-build = ["cargo", "build", "--release"]
+deploymentTarget = "vm"
+run = ["bash", "-c", "PORT=8000 ./target/release/mtg-server & cd frontend && npm run start"]
+build = ["bash", "-c", "cargo build --release -p mtg-server && cd frontend && npm install && npm run build"]

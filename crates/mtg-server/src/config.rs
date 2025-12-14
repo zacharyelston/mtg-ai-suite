@@ -38,7 +38,7 @@ fn default_port() -> u16 {
 }
 
 fn default_database_url() -> String {
-    "postgres://localhost/mtg_ai_suite".to_string()
+    "sqlite:./data/mtg_ai_suite.db?mode=rwc".to_string()
 }
 
 fn default_llm_provider() -> String {

@@ -6,6 +6,116 @@ This document defines the architecture, design standards, and conventions for th
 
 ---
 
+## ⚠️ FIRST PRINCIPLES - READ THIS FIRST
+
+These rules take precedence over all other guidelines in this document.
+
+### 1. Modularity Above All
+
+```
+RULE: Every file must have a single, clear responsibility.
+      Use the filesystem as your organizational structure.
+      If you're unsure where code belongs, create a new module.
+```
+
+### 2. File Size Limit
+
+```
+RULE: Maximum 500 lines per source file.
+      If a file exceeds 500 lines, split it into smaller modules.
+      No exceptions.
+```
+
+**Why?**
+- Easier to understand, review, and test
+- Faster compilation (Rust)
+- Better git diffs and merge conflict resolution
+- Forces good separation of concerns
+
+**How to split:**
+```
+# Before (bad): api.rs with 800 lines
+api.rs
+
+# After (good): api/ directory with focused modules
+api/
+├── mod.rs          # Re-exports, max 50 lines
+├── captures.rs     # Capture endpoints
+├── cards.rs        # Card endpoints
+├── auth.rs         # Auth endpoints
+└── middleware.rs   # Shared middleware
+```
+
+### 3. Reduce Complexity
+
+```
+RULE: Prefer simple, readable code over clever code.
+      If a function is hard to explain, refactor it.
+      Cyclomatic complexity should stay low.
+```
+
+**Guidelines:**
+- Functions: max 50 lines, ideally under 25
+- Nesting: max 3 levels deep
+- Parameters: max 5, use structs for more
+- Dependencies: minimize coupling between modules
+
+### 4. Commit and Test Often
+
+```
+RULE: Commit frequently with atomic, logical changes.
+      Run tests before every commit.
+      Each commit should leave the codebase in a working state.
+```
+
+**Commit workflow:**
+```bash
+# 1. Make small, focused change
+# 2. Run tests
+cargo test
+npm test
+
+# 3. Commit with descriptive message
+git commit -m "feat(recognition): add fuzzy matching for card names"
+
+# 4. Repeat
+```
+
+### 5. Push Only When It Works
+
+```
+RULE: Never push broken code to shared branches.
+      All tests must pass before pushing.
+      CI should never be red on main/develop.
+```
+
+**Push workflow:**
+```bash
+# 1. Run full test suite
+cargo test --all
+cd client && npm test && npm run build
+
+# 2. Run lints
+cargo clippy -- -D warnings
+npm run lint
+
+# 3. Only then push
+git push
+```
+
+### Quick Reference
+
+| Rule | Limit | Action if Exceeded |
+|------|-------|-------------------|
+| File size | 500 lines | Split into modules |
+| Function size | 50 lines | Extract helper functions |
+| Nesting depth | 3 levels | Refactor or early return |
+| Parameters | 5 params | Use config/options struct |
+| Commit frequency | Every logical change | Commit more often |
+| Push condition | All tests pass | Fix before pushing |
+
+---
+
 ## Technology Stack
 
 ### Core Languages

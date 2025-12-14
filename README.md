@@ -114,12 +114,16 @@ npm run dev
 
 ### Wiki
 - **[Wiki Home](https://github.com/zacharyelston/mtg-ai-suite/wiki)** - Project documentation hub
+- **[Features](https://github.com/zacharyelston/mtg-ai-suite/wiki/Features)** - Feature set by version + issue triage checklist
+- **[Release Schedule](https://github.com/zacharyelston/mtg-ai-suite/wiki/Release-Schedule)** - Semantic versioning and milestones
 - **[Replit Agent Worklist](https://github.com/zacharyelston/mtg-ai-suite/wiki/Replit-Agent-Worklist)** - Implementation tasks by architecture layer
 - **[Multi-Backend Architecture](https://github.com/zacharyelston/mtg-ai-suite/wiki/Multi-Backend-Architecture)** - Mobile + self-hosted backends design
 
 ### In-Repo Docs
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Core architecture and coding standards
 - [REPLIT_SETUP.md](REPLIT_SETUP.md) - Replit environment setup guide
+- [docs/FEATURES.md](docs/FEATURES.md) - Feature set and issue triage
+- [docs/RELEASE_SCHEDULE.md](docs/RELEASE_SCHEDULE.md) - Version roadmap
 - [docs/PRD_FRONTEND.md](docs/PRD_FRONTEND.md) - Mobile PWA product requirements
 - [docs/PRD_BACKEND.md](docs/PRD_BACKEND.md) - Backend API requirements
 

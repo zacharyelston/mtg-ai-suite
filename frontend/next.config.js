@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -22,7 +24,7 @@ const nextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'http://localhost:8000/api/v1/:path*',
+        destination: `${BACKEND_URL}/api/v1/:path*`,
       },
     ];
   },

@@ -84,9 +84,7 @@ pub async fn list_cards(
 }
 
 /// Get card by ID
-pub async fn get_card(
-    Path(id): Path<String>,
-) -> Result<Json<CardResponse>, (StatusCode, String)> {
+pub async fn get_card(Path(id): Path<String>) -> Result<Json<CardResponse>, (StatusCode, String)> {
     let service = ScryfallService::new();
 
     match service.get_card_by_id(&id).await {

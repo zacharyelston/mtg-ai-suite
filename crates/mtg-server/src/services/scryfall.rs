@@ -57,6 +57,7 @@ pub struct Prices {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ScryfallSearchResponse {
     pub object: String,
     pub total_cards: Option<u32>,
@@ -65,6 +66,7 @@ pub struct ScryfallSearchResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct AutocompleteResponse {
     pub object: String,
     pub data: Vec<String>,

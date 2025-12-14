@@ -613,6 +613,8 @@ impl GamePiece for PokemonCard {
 
 ## Potential Games to Support
 
+### Trading Card Games
+
 | Game | Complexity | Data Source | Notes |
 |------|------------|-------------|-------|
 | **Magic: The Gathering** | High | Scryfall API | First implementation |
@@ -624,8 +626,136 @@ impl GamePiece for PokemonCard {
 | **Hearthstone** | Medium | HearthstoneJSON | Digital-first |
 | **Marvel Snap** | Low | snap.fan | Simple rules |
 | **Dominion** | Medium | - | Deck builder |
-| **Chess** | Low | - | Board game example |
-| **Go** | Low | - | Board game example |
+
+### Classic Board Games
+
+| Game | Complexity | Data Source | Notes |
+|------|------------|-------------|-------|
+| **Chess** | Low | - | Perfect information, well-studied AI |
+| **Go** | Medium | - | Simple rules, deep strategy |
+| **Checkers** | Low | - | Good starter project |
+| **Backgammon** | Low | - | Dice + strategy |
+
+### Word & Puzzle Games
+
+| Game | Complexity | Piece Type | AI Challenge |
+|------|------------|------------|--------------|
+| **Scrabble** | Medium | Letter tiles | Vocabulary + board optimization |
+| **Crossword** | Medium | Clue/Answer pairs | NLP for clue interpretation |
+| **Wordle** | Low | Letters | Information theory, elimination |
+| **Sudoku** | Low | Numbers 1-9 | Constraint satisfaction |
+| **Boggle** | Low | Letter grid | Word search + pathfinding |
+
+### Casino & Betting Games
+
+| Game | Complexity | Piece Type | AI Challenge |
+|------|------------|------------|--------------|
+| **Poker (Texas Hold'em)** | High | Cards + chips | Incomplete info, bluffing, GTO |
+| **Blackjack** | Low | Cards | Card counting, basic strategy |
+| **Bridge** | High | Cards | Partnership, bidding conventions |
+
+### How These Fit the Framework
+
+#### Scrabble Example
+```rust
+struct ScrabbleTile {
+    letter: char,
+    point_value: u8,
+}
+
+impl GamePiece for ScrabbleTile {
+    type Id = char;
+    fn name(&self) -> &str { /* letter as string */ }
+    fn category(&self) -> &str { "tile" }
+}
+
+// GameState tracks: board, racks, bag, scores
+// PlayAdvisor suggests: highest-scoring valid words
+// Recognition: OCR tile letters from board photo
+```
+
+#### Poker Example
+```rust
+struct PlayingCard {
+    rank: Rank,    // 2-10, J, Q, K, A
+    suit: Suit,    // ♠♥♦♣
+}
+
+impl GamePiece for PlayingCard {
+    type Id = (Rank, Suit);
+    fn category(&self) -> &str { "card" }
+}
+
+// GameState tracks: community cards, hole cards, pot, positions, stack sizes
+// PlayAdvisor suggests: fold/call/raise with EV calculations
+// Recognition: Card detection from table photo
+```
+
+#### Sudoku Example
+```rust
+struct SudokuCell {
+    value: Option<u8>,  // 1-9 or empty
+    position: (u8, u8), // row, col
+    is_given: bool,     // original clue vs solved
+}
+
+impl GamePiece for SudokuCell {
+    type Id = (u8, u8);  // position
+    fn category(&self) -> &str { 
+        if self.is_given { "given" } else { "solved" }
+    }
+}
+
+// GameState tracks: 9x9 grid, candidates per cell
+// PlayAdvisor suggests: next cell to fill, technique to use
+// Recognition: OCR numbers from puzzle photo
+```
+
+#### Crossword Example
+```rust
+struct CrosswordClue {
+    number: u16,
+    direction: Direction,  // Across or Down
+    clue_text: String,
+    answer: String,
+    cells: Vec<(u8, u8)>,
+}
+
+impl GamePiece for CrosswordClue {
+    type Id = (u16, Direction);
+    fn category(&self) -> &str { 
+        match self.direction {
+            Direction::Across => "across",
+            Direction::Down => "down",
+        }
+    }
+}
+
+// GameState tracks: grid, filled letters, solved clues
+// PlayAdvisor suggests: answers using NLP + crossword databases
+// Recognition: OCR grid and clue list from photo
+```
+
+### Framework Applicability Matrix
+
+| Feature | TCGs | Board Games | Word Games | Card Games |
+|---------|------|-------------|------------|------------|
+| **GamePiece** | Cards | Pieces/Tiles | Letters/Clues | Cards |
+| **GameCollection** | Decks | - | Rack/Hand | Hand |
+| **GameState** | Complex | Medium | Simple | Medium |
+| **Recognition** | Card OCR | Board vision | Grid OCR | Card detection |
+| **PlayAdvisor** | LLM + rules | Search/MCTS | Dictionary + NLP | GTO + EV |
+| **DataSource** | Card APIs | - | Dictionaries | - |
+
+### Design Considerations by Game Type
+
+| Game Type | Key Challenge | Framework Strength |
+|-----------|---------------|-------------------|
+| **TCGs** | Complex rules, large card pools | Recognition, data sync |
+| **Board Games** | State representation, move generation | State traits, rules engine |
+| **Word Games** | NLP, dictionary lookup | LLM integration, fuzzy matching |
+| **Poker/Casino** | Probability, opponent modeling | Advisor traits, state tracking |
+| **Puzzles** | Constraint solving | State representation, solver integration |
 
 ---
 

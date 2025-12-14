@@ -9,7 +9,7 @@ license.workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-mtg-core = { path = "../mtg-core", features = ["wasm"] }
+mtg-core = { path = "../mtg-core", default-features = false, features = ["wasm"] }
 
 # WASM bindings
 wasm-bindgen = "0.2"

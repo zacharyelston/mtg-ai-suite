@@ -5,19 +5,26 @@
 //!
 //! # Modules
 //!
-//! - [`card`] - Card data structures and parsing
-//! - [`recognition`] - Card recognition algorithms
+//! - [`card`] - Card data structures and parsing (requires `full` feature)
+//! - [`recognition`] - Card recognition algorithms (requires `full` feature)
 //! - [`fuzzy`] - Fuzzy string matching for card names
 //! - [`error`] - Error types
-//! - [`image`] - Image processing utilities
+//! - [`image_processing`] - Image processing utilities (requires `full` feature)
 
-pub mod card;
 pub mod error;
 pub mod fuzzy;
+
+#[cfg(feature = "full")]
+pub mod card;
+#[cfg(feature = "full")]
 pub mod image_processing;
+#[cfg(feature = "full")]
 pub mod recognition;
 
-pub use card::{Card, CardColor, CardType};
 pub use error::{Error, Result};
 pub use fuzzy::FuzzyMatcher;
+
+#[cfg(feature = "full")]
+pub use card::{Card, CardColor, CardType};
+#[cfg(feature = "full")]
 pub use recognition::{RecognitionResult, RecognitionService};

@@ -3,11 +3,11 @@ resolver = "2"
 members = [
     # Framework crates (game-agnostic)
     "crates/cardgame-core",
-    
+
     # Game implementations
     "crates/games/mtg",
     "crates/games/template",
-    
+
     # MTG-specific binaries (uses framework + mtg game)
     "crates/mtg-core",
     "crates/mtg-server",
@@ -61,7 +61,7 @@ strsim = "0.11"
 # symspell = "0.4"  # Alternative fuzzy matching
 
 # UUID
-uuid = { version = "1.6", features = ["v4", "serde"] }
+uuid = { version = "1.6", features = ["v4", "serde", "js"] }
 
 # Time
 chrono = { version = "0.4", features = ["serde"] }

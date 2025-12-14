@@ -7,9 +7,6 @@
     pkgs.clippy
     pkgs.rustfmt
 
-    # Database (sqlite only - no postgres for Replit compatibility)
-    pkgs.sqlite
-
     # Build dependencies
     pkgs.openssl
     pkgs.pkg-config

@@ -10,10 +10,6 @@ pub struct Config {
     #[serde(default = "default_port")]
     pub port: u16,
 
-    /// Database URL
-    #[serde(default = "default_database_url")]
-    pub database_url: String,
-
     /// Redis URL (optional)
     pub redis_url: Option<String>,
 
@@ -37,10 +33,6 @@ fn default_port() -> u16 {
     8080
 }
 
-fn default_database_url() -> String {
-    "sqlite:./data/mtg_ai_suite.db?mode=rwc".to_string()
-}
-
 fn default_llm_provider() -> String {
     "openai".to_string()
 }
@@ -61,7 +53,6 @@ impl Config {
                 .ok()
                 .and_then(|p| p.parse().ok())
                 .unwrap_or_else(default_port),
-            database_url: std::env::var("DATABASE_URL").unwrap_or_else(|_| default_database_url()),
             redis_url: std::env::var("REDIS_URL").ok(),
             llm_api_key: std::env::var("LLM_API_KEY").ok(),
             llm_provider: std::env::var("LLM_PROVIDER").unwrap_or_else(|_| default_llm_provider()),

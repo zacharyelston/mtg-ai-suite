@@ -24,9 +24,6 @@ tower-http = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
-# Database
-sqlx = { workspace = true }
-
 # Error handling
 thiserror = { workspace = true }
 anyhow = { workspace = true }

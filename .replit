@@ -1,17 +1,15 @@
-modules = ["rust-stable", "nodejs-20", "python-3.11"]
+modules = ["python-3.11", "nodejs-20", "web"]
 
 [agent]
 expertMode = true
 integrations = ["github:1.0.0"]
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 
 [env]
 RUST_LOG = "info"
 PORT = "8080"
-DATABASE_URL = "sqlite:./data/dev.db"
-
 [workflows]
 runButton = "Project"
 
@@ -47,11 +45,7 @@ outputType = "webview"
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 8080
-externalPort = 80
-
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "mkdir -p data && cargo run --release --bin mtg-server"]
-build = ["cargo", "build", "--release"]
+run = ["bash", "-c", "cd frontend && npm run start -- -p 5000"]
+build = ["bash", "-c", "cd frontend && npm install && npm run build"]

@@ -1,15 +1,12 @@
-modules = ["python-3.11", "nodejs-20", "web"]
-
-[agent]
-expertMode = true
-integrations = ["github:1.0.0"]
+modules = ["rust-stable", "nodejs-20"]
 
 [nix]
-channel = "stable-25_05"
+channel = "stable-24_05"
 
 [env]
 RUST_LOG = "info"
 PORT = "8080"
+
 [workflows]
 runButton = "Project"
 
@@ -23,7 +20,8 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mkdir -p data && cargo run --bin mtg-server"
+args = "cargo run --release --bin mtg-server"
+waitForPort = 8080
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -45,7 +43,11 @@ outputType = "webview"
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd frontend && npm run start -- -p 5000"]
-build = ["bash", "-c", "cd frontend && npm install && npm run build"]
+run = ["bash", "-c", "cargo run --release --bin mtg-server & cd frontend && npm run start -- -p 5000"]
+build = ["bash", "-c", "cargo build --release --bin mtg-server && cd frontend && npm install && npm run build"]

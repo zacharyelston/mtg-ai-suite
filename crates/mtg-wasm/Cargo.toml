@@ -1,0 +1,49 @@
+[package]
+name = "mtg-wasm"
+description = "MTG AI Suite WebAssembly module for client-side processing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false  # Disable wasm-opt to avoid bulk memory validation errors
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+mtg-core = { path = "../mtg-core", default-features = false, features = ["wasm"] }
+
+# WASM bindings
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+    "console",
+    "Window",
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
+    "ImageData",
+    "Blob",
+    "FileReader",
+] }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde-wasm-bindgen = "0.6"
+
+# Error handling
+thiserror = { workspace = true }
+
+# Console logging for WASM
+console_error_panic_hook = "0.1"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+opt-level = "s"  # Optimize for size
+lto = true

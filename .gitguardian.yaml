@@ -1,0 +1,21 @@
+# GitGuardian configuration
+# https://docs.gitguardian.com/ggshield-docs/reference/gitguardian-yaml
+
+version: 2
+
+# Paths to ignore (development/test files)
+secret:
+  ignored-paths:
+    - "**/docker-compose*.yml"
+    - "**/.env.example"
+    - "**/ARCHITECTURE.md"
+    - "**/PRD_*.md"
+    
+  # Ignore specific patterns that are clearly not real secrets
+  ignored-matches:
+    - name: "Test database passwords"
+      match: "test_only_not_a_secret"
+    - name: "Development placeholder"
+      match: "changeme_in_production"
+    - name: "Example env file"
+      match: "user:password@localhost"

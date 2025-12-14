@@ -1,0 +1,52 @@
+[package]
+name = "mtg-cli"
+description = "MTG AI Suite command-line interface"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "mtg-ai-suite"
+path = "src/main.rs"
+
+[dependencies]
+mtg-core = { path = "../mtg-core" }
+
+# CLI
+clap = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+
+# UUID
+uuid = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# HTTP client
+reqwest = { workspace = true }
+
+# Configuration
+dotenvy = { workspace = true }
+
+# Password hashing
+argon2 = { workspace = true }
+
+# Random number generation
+rand = "0.8"
+
+# Terminal output
+colored = "2.1"
+indicatif = "0.17"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"

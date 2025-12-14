@@ -1,0 +1,30 @@
+# MTG AI Suite - Integration Test Dockerfile
+# Self-contained test environment with SQLite
+
+FROM rust:latest
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    sqlite3 \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust components
+RUN rustup component add rustfmt clippy
+
+# Create data directory for SQLite
+RUN mkdir -p /app/data
+
+# Copy workspace files
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+
+# Pre-build dependencies (cache layer)
+RUN cargo build --all --features integration 2>/dev/null || true
+
+# Default: run integration tests
+CMD ["cargo", "test", "--all", "--features", "integration"]

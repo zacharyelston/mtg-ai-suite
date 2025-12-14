@@ -112,10 +112,16 @@ npm run dev
 
 ## 📚 Documentation
 
-See the [docs/](docs/) directory for detailed documentation:
-- [API Reference](docs/api/)
-- [Development Guide](docs/development/)
-- [User Guide](docs/user/)
+### Wiki
+- **[Wiki Home](https://github.com/zacharyelston/mtg-ai-suite/wiki)** - Project documentation hub
+- **[Replit Agent Worklist](https://github.com/zacharyelston/mtg-ai-suite/wiki/Replit-Agent-Worklist)** - Implementation tasks by architecture layer
+- **[Multi-Backend Architecture](https://github.com/zacharyelston/mtg-ai-suite/wiki/Multi-Backend-Architecture)** - Mobile + self-hosted backends design
+
+### In-Repo Docs
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Core architecture and coding standards
+- [REPLIT_SETUP.md](REPLIT_SETUP.md) - Replit environment setup guide
+- [docs/PRD_FRONTEND.md](docs/PRD_FRONTEND.md) - Mobile PWA product requirements
+- [docs/PRD_BACKEND.md](docs/PRD_BACKEND.md) - Backend API requirements
 
 ## 🔗 References
 

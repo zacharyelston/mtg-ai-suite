@@ -40,7 +40,7 @@ services:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_in_production}
       POSTGRES_DB: mtg_ai_suite
     ports:
       - "5432:5432"

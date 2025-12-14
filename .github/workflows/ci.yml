@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 env:
   CARGO_TERM_COLOR: always
@@ -41,18 +41,25 @@ jobs:
         run: cargo build --release
 
   # ============================================
-  # TypeScript checks
+  # TypeScript checks (only if client exists)
   # ============================================
   typescript-check:
     name: TypeScript Check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./client
     steps:
       - uses: actions/checkout@v4
       
+      - name: Check if client exists
+        id: check_client
+        run: |
+          if [ -d "client" ] && [ -f "client/package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+          
       - name: Setup Node.js
+        if: steps.check_client.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -60,19 +67,33 @@ jobs:
           cache-dependency-path: client/package-lock.json
           
       - name: Install dependencies
+        if: steps.check_client.outputs.exists == 'true'
+        working-directory: ./client
         run: npm ci
         
       - name: Type check
+        if: steps.check_client.outputs.exists == 'true'
+        working-directory: ./client
         run: npm run type-check
         
       - name: Lint
+        if: steps.check_client.outputs.exists == 'true'
+        working-directory: ./client
         run: npm run lint
         
       - name: Run tests
+        if: steps.check_client.outputs.exists == 'true'
+        working-directory: ./client
         run: npm run test
         
       - name: Build
+        if: steps.check_client.outputs.exists == 'true'
+        working-directory: ./client
         run: npm run build
+        
+      - name: Skip message
+        if: steps.check_client.outputs.exists == 'false'
+        run: echo "Client directory not found, skipping TypeScript checks"
 
   # ============================================
   # Integration tests
@@ -85,7 +106,7 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD || 'test_only_not_a_secret' }}
           POSTGRES_DB: mtg_test
         ports:
           - 5432:5432
@@ -110,7 +131,7 @@ jobs:
       - name: Run integration tests
         run: cargo test --test '*' --features integration
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mtg_test
+          DATABASE_URL: postgres://postgres:${{ secrets.TEST_DB_PASSWORD || 'test_only_not_a_secret' }}@localhost:5432/mtg_test
           REDIS_URL: redis://localhost:6379
 
   # ============================================

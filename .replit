@@ -1,39 +1,61 @@
-modules = ["nodejs-20", "web", "python-3.11"]
+modules = ["rust-stable", "nodejs-20", "python-3.11"]
+
 [agent]
 expertMode = true
 
 [nix]
-channel = "stable-25_05"
+channel = "stable-24_05"
+
+[env]
+RUST_LOG = "info"
+PORT = "8080"
+DATABASE_URL = "sqlite:./data/dev.db"
 
 [workflows]
 runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Frontend"
-
-[[workflows.workflow]]
-name = "Frontend"
+mode = "sequential"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd frontend && npm run dev"
-waitForPort = 5000
+args = "mkdir -p data && cargo run --bin mtg-server"
+waitForPort = 8080
 
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "Build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cargo build --release"
+
+[[workflows.workflow]]
+name = "Test"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cargo test --all"
+
+[[workflows.workflow]]
+name = "Load Cards"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install psycopg2-binary && python scripts/load_scryfall.py --bulk-type oracle_cards"
+
 [[ports]]
-localPort = 5000
+localPort = 8080
 externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["npm", "run", "start", "--prefix", "frontend", "--", "-H", "0.0.0.0", "-p", "5000"]
-build = ["npm", "run", "build", "--prefix", "frontend"]
+run = ["sh", "-c", "mkdir -p data && cargo run --release --bin mtg-server"]
+build = ["cargo", "build", "--release"]

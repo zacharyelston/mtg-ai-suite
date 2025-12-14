@@ -105,8 +105,22 @@ Deliver a beautiful, responsive mobile application that MTG players can use at t
 | PWA | next-pwa + Workbox |
 | Push Notifications | Web Push API |
 | Offline Storage | IndexedDB via Dexie.js |
-| Camera Access | MediaDevices API |
+| Camera Access | MediaDevices API (`getUserMedia`) |
+| Photo Upload | File Input API |
+| Video Stream | MediaStream API |
+| Screen Capture | Screen Capture API (`getDisplayMedia`) |
+| Image Processing | Canvas API + Web Workers |
+| Barcode Detection | BarcodeDetector API |
 | Haptic Feedback | Vibration API |
+
+### 3.4 Image Processing Libraries
+| Library | Purpose |
+|---------|---------|
+| Tesseract.js | Client-side OCR for card text |
+| TensorFlow.js | On-device ML for card recognition |
+| OpenCV.js | Image preprocessing |
+| Jimp | Image manipulation |
+| Compressor.js | Image compression before upload |
 
 ---
 
@@ -471,9 +485,176 @@ interface ServerConnection {
 - "Help me sideboard"
 - "Draft pick advice"
 
-### 4.7 Settings & Configuration
+### 4.7 Image Capture & Card Recognition
 
-#### 4.7.1 Settings Screen
+#### 4.7.1 Capture Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **Single Card Scan** | Point camera at one card | Quick card lookup |
+| **Batch Scan** | Continuous scanning mode | Collection intake |
+| **Board State** | Wide shot of battlefield | AI board analysis |
+| **Hand Photo** | Capture opening hand | Mulligan advice |
+| **Deck Import** | Photo of card pile/list | Import physical deck |
+| **Screen Capture** | Grab from MTG Arena/MTGO | Digital game tracking |
+| **Binder Scan** | Scan binder pages | Collection cataloging |
+
+#### 4.7.2 Single Card Scanner
+```
+┌─────────────────────────────────────┐
+│  Scan Card                    ✕    │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │                             │   │
+│  │                             │   │
+│  │     [Camera Viewfinder]     │   │
+│  │                             │   │
+│  │    ┌─────────────────┐     │   │
+│  │    │ Align card here │     │   │
+│  │    └─────────────────┘     │   │
+│  │                             │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │ 🔍 Detected: Lightning Bolt │   │
+│  │    Confidence: 98%          │   │
+│  │    [View Card] [Add to Deck]│   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  [📷 Capture]  [🔦 Flash]  [⚙️]   │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+#### 4.7.3 Batch Scan Mode
+```
+┌─────────────────────────────────────┐
+│  Batch Scan (12 cards)        ✕    │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │     [Camera Viewfinder]     │   │
+│  │                             │   │
+│  │  ✓ Card detected - scanning │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  Recent Scans:                     │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐  │
+│  │ ✓   │ │ ✓   │ │ ✓   │ │ ✓   │  │
+│  │Bolt │ │Guide│ │Charm│ │Mage │  │
+│  └─────┘ └─────┘ └─────┘ └─────┘  │
+│                                     │
+│  [Pause]  [Review All]  [Done]     │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+#### 4.7.4 Board State Capture
+```
+┌─────────────────────────────────────┐
+│  Capture Board State          ✕    │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │                             │   │
+│  │  [Wide Camera Viewfinder]   │   │
+│  │                             │   │
+│  │  Tip: Include all cards     │   │
+│  │  in play for best analysis  │   │
+│  │                             │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  [📷 Capture Board]                │
+│                                     │
+│  After capture:                    │
+│  • AI will identify all cards      │
+│  • Analyze board state             │
+│  • Suggest optimal plays           │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+#### 4.7.5 Screen Capture (Desktop/Tablet)
+```
+┌─────────────────────────────────────┐
+│  Screen Capture               ✕    │
+├─────────────────────────────────────┤
+│                                     │
+│  Capture game state from:          │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │ 🖥️ MTG Arena               │   │
+│  │    Capture current game     │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │ 🖥️ MTG Online              │   │
+│  │    Capture current game     │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │ 📋 Paste Screenshot         │   │
+│  │    From clipboard           │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │ 📁 Upload Image             │   │
+│  │    From device              │   │
+│  └─────────────────────────────┘   │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+#### 4.7.6 Recognition Pipeline
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  Capture │───▶│ Preprocess│───▶│   OCR/   │───▶│  Fuzzy   │
+│  Image   │    │  Image   │    │   ML     │    │  Match   │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+                     │                │               │
+                     ▼                ▼               ▼
+              ┌──────────┐    ┌──────────┐    ┌──────────┐
+              │ Crop &   │    │ Extract  │    │ Scryfall │
+              │ Rotate   │    │ Card Name│    │ Lookup   │
+              └──────────┘    └──────────┘    └──────────┘
+```
+
+#### 4.7.7 Processing Options
+
+| Setting | Options | Default |
+|---------|---------|---------|
+| Processing Location | On-device / Server | On-device |
+| OCR Engine | Tesseract.js / Azure Vision | Tesseract.js |
+| Auto-capture | On / Off | On |
+| Haptic Feedback | On / Off | On |
+| Sound Effects | On / Off | On |
+| Save Original Images | Yes / No | No |
+
+#### 4.7.8 Supported Input Sources
+
+| Source | API | Notes |
+|--------|-----|-------|
+| Rear Camera | `getUserMedia({ video: { facingMode: 'environment' } })` | Primary for card scanning |
+| Front Camera | `getUserMedia({ video: { facingMode: 'user' } })` | Fallback |
+| Screen Share | `getDisplayMedia()` | For MTG Arena/MTGO |
+| File Upload | `<input type="file" accept="image/*">` | Gallery photos |
+| Clipboard | `navigator.clipboard.read()` | Pasted screenshots |
+| Drag & Drop | HTML5 Drag and Drop API | Desktop convenience |
+
+#### 4.7.9 Image Quality Requirements
+
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| Resolution | 640x480 | 1280x720+ |
+| Card Size in Frame | 20% of frame | 40-60% of frame |
+| Lighting | Readable text | Even, no glare |
+| Focus | Card name legible | Sharp edges |
+| Angle | < 30° tilt | Flat/perpendicular |
+
+### 4.8 Settings & Configuration
+
+#### 4.8.1 Settings Screen
 ```
 ┌─────────────────────────────────────┐
 │  Settings                          │

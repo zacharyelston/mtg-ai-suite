@@ -2,11 +2,37 @@
 
 This document contains prioritized tasks for the Replit agent to implement.
 
-## Current Branch
+## Branching Strategy
+
+**Always create a new feature branch from `develop` for each task:**
 
 ```bash
-git checkout feature/replit-setup
+# 1. Start from develop
+git checkout develop
+git pull origin develop
+
+# 2. Create a feature branch for your task
+git checkout -b feature/<task-name>
+
+# Examples:
+git checkout -b feature/health-endpoint
+git checkout -b feature/card-search-api
+git checkout -b feature/image-upload
 ```
+
+**After completing a task:**
+```bash
+# 1. Commit your changes
+git add -A
+git commit -m "feat(<scope>): <description>"
+
+# 2. Push and create PR to develop
+git push -u origin feature/<task-name>
+
+# 3. Create Pull Request on GitHub to merge into develop
+```
+
+---
 
 ## Phase 1: Core Server (Priority: HIGH)
 
@@ -121,10 +147,11 @@ curl "http://localhost:8080/api/cards?q=lightning"
 
 ## Commit Guidelines
 
-1. Create feature branch: `git checkout -b feature/your-feature`
+1. **Always branch from `develop`**: `git checkout develop && git pull && git checkout -b feature/your-feature`
 2. Make small, focused commits
 3. Run tests before committing: `cargo test`
-4. Push and create PR to `develop`
+4. Push and create PR to `develop`: `git push -u origin feature/your-feature`
+5. After PR is merged, delete the feature branch and start fresh for next task
 
 ## Notes
 

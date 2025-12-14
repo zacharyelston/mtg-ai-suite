@@ -61,6 +61,14 @@ enum ApikeyCommands {
         /// Expiration (e.g., 30d, 1y, never)
         #[arg(long, default_value = "never")]
         expires: String,
+
+        /// Output file path (writes to file instead of stdout)
+        #[arg(short, long)]
+        output: Option<String>,
+
+        /// Backend URL to include in output
+        #[arg(long)]
+        backend_url: Option<String>,
     },
 
     /// List all API keys
@@ -223,7 +231,9 @@ async fn main() -> anyhow::Result<()> {
                 name,
                 permissions,
                 expires,
-            } => commands::apikey::create(&name, &permissions, &expires, cli.json).await,
+                output,
+                backend_url,
+            } => commands::apikey::create(&name, &permissions, &expires, cli.json, output.as_deref(), backend_url.as_deref()).await,
             ApikeyCommands::List { active_only } => {
                 commands::apikey::list(active_only, cli.json).await
             }

@@ -14,6 +14,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod api;
 mod config;
+mod shared_config;
+
+pub use shared_config::{ServerConfig, ApiKeyEntry};
 
 use config::Config;
 
@@ -33,6 +36,9 @@ async fn main() -> anyhow::Result<()> {
     let config = Config::from_env()?;
 
     info!("Starting MTG AI Suite server on port {}", config.port);
+
+    // Initialize dashboard stats
+    api::dashboard::init_stats();
 
     // Build router
     let app = create_router();
@@ -59,6 +65,8 @@ fn create_router() -> Router {
     Router::new()
         // Health check
         .route("/health", get(api::health::health_check))
+        // Dashboard
+        .nest("/dashboard", api::dashboard_routes())
         // API v1 routes
         .nest("/api/v1", api::v1_routes())
         // Middleware

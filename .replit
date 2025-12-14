@@ -1,4 +1,4 @@
-modules = ["python-3.11", "nodejs-20", "web"]
+modules = ["rust-stable", "nodejs-20", "python-3.11"]
 
 [agent]
 expertMode = true
@@ -27,15 +27,15 @@ args = "mkdir -p data && cargo run --bin mtg-server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend"
+args = "Backend"
 
 [[workflows.workflow]]
-name = "Frontend"
+name = "Backend"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd frontend && npm run dev"
+args = "cargo run --package mtg-server"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -47,5 +47,10 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd frontend && npm run start -- -p 5000"]
-build = ["bash", "-c", "cd frontend && npm install && npm run build"]
+run = ["./target/release/mtg-server"]
+build = ["cargo", "build", "--package", "mtg-server", "--release"]
+
+[userenv]
+
+[userenv.shared]
+PORT = "5000"

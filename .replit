@@ -53,3 +53,9 @@ externalPort = 8080
 deploymentTarget = "autoscale"
 run = ["bash", "-c", "cd frontend && npm run start -- -p 5000"]
 build = ["bash", "-c", "cd frontend && npm install && npm run build"]
+
+[userenv]
+
+[userenv.shared]
+BACKEND_URL = "https://58063008-02f7-4b1a-8025-960bb1ab8cf4-00-s1w9t2nvboiv.riker.replit.dev"
+API_KEY = "mtg_e30A5w7jxZ7EfikwCBOrJ61Gz6rl6ykf"

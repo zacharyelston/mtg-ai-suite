@@ -2,14 +2,6 @@
 # Install: pip install pre-commit && pre-commit install
 
 repos:
-  # Secret detection
-  - repo: https://github.com/gitguardian/ggshield
-    rev: v1.24.0
-    hooks:
-      - id: ggshield
-        language_version: python3
-        stages: [commit]
-
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

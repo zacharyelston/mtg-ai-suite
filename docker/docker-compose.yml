@@ -2,6 +2,22 @@ version: '3.8'
 
 services:
   # ============================================
+  # Database Migrations (Flyway)
+  # ============================================
+  flyway:
+    image: flyway/flyway:10
+    command: migrate
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://db:5432/mtg_ai_suite
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=${POSTGRES_PASSWORD:-changeme_in_production}
+    volumes:
+      - ../database/migrations:/flyway/sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ============================================
   # MTG AI Suite Server
   # ============================================
   mtg-server:
@@ -11,7 +27,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/mtg_ai_suite
+      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD:-changeme_in_production}@db:5432/mtg_ai_suite
       - REDIS_URL=redis://redis:6379
       - LLM_API_KEY=${LLM_API_KEY:-}
       - LLM_PROVIDER=${LLM_PROVIDER:-openai}
@@ -20,6 +36,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
       redis:
         condition: service_started
     volumes:

@@ -30,7 +30,7 @@ pub struct Config {
 }
 
 fn default_port() -> u16 {
-    5000
+    8080
 }
 
 fn default_llm_provider() -> String {

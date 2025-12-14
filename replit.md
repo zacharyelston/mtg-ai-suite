@@ -43,7 +43,10 @@ See [GitHub Issues](https://github.com/zacharyelston/mtg-ai-suite/issues) for tr
 - Updated Next.js to run on port 5000 with host 0.0.0.0
 - Added allowedDevOrigins configuration for proxy support
 - Added functional card search feature with Scryfall integration
-- Added frontend unit tests (15 tests)
-- Added backend unit tests (2 tests)
+- Added frontend unit tests (34 tests total)
+- Added backend unit tests (5 tests total)
 - Created develop branch review (DEVELOP_BRANCH_REVIEW.md)
 - Created GitHub issues #6-#12 from review findings
+- **Camera capture feature**: Added CameraCapture and CapturePreview components with WebRTC
+- **Backend routes mounted**: Connected card routes to FastAPI main app
+- **Health endpoint enhanced**: Added version and timestamp to health response

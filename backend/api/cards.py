@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
-from ..services.scryfall import ScryfallService
+from services.scryfall import ScryfallService
 
 router = APIRouter(prefix="/cards", tags=["cards"])
 scryfall = ScryfallService()

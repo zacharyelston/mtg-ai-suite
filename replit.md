@@ -25,7 +25,20 @@ A Magic: The Gathering AI-powered toolkit for card database management, rules pr
 - Use `npm run dev` in frontend/ for development
 - Use `uvicorn app.main:app --host localhost --port 8000` in backend/ for API development
 
+## Testing
+- **Frontend**: Run `npm test` in frontend/ (Jest + React Testing Library)
+- **Backend**: Run `pytest` in backend/ (pytest + pytest-asyncio)
+
+## Features
+- **Card Search**: Search MTG cards using Scryfall API with autocomplete
+- **Card Display**: Grid view of cards with images
+- **Card Details**: Modal view with full card information and pricing
+- **Random Card**: Get a random card from the database
+
 ## Recent Changes
 - Configured for Replit environment
 - Updated Next.js to run on port 5000 with host 0.0.0.0
 - Added allowedDevOrigins configuration for proxy support
+- Added functional card search feature with Scryfall integration
+- Added frontend unit tests (15 tests)
+- Added backend unit tests (2 tests)

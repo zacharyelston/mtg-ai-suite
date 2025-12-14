@@ -6,6 +6,7 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
+use tracing::info;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -118,14 +119,21 @@ pub async fn create_capture(
 ) -> (StatusCode, Json<CreateCaptureResponse>) {
     let capture_id = Uuid::new_v4().to_string();
 
+    let image_size = payload.image.len();
+    let captured_at = &payload.metadata.captured_at;
+    
+    info!(
+        capture_id = %capture_id,
+        image_size_bytes = image_size,
+        captured_at = %captured_at,
+        "Received new capture submission"
+    );
+
     // TODO: Implement actual capture processing
     // 1. Decode base64 image
-    // 2. Store image
-    // 3. Run recognition
-    // 4. Store capture record
-
-    let _image_data = payload.image;
-    let _metadata = payload.metadata;
+    // 2. Store image to disk or object storage
+    // 3. Run card recognition via ML model
+    // 4. Store capture record in database
 
     (
         StatusCode::CREATED,

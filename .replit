@@ -49,5 +49,5 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "mkdir -p data && cargo run --release --bin mtg-server"]
-build = ["cargo", "build", "--release"]
+run = ["bash", "-c", "cd frontend && npm run start"]
+build = ["bash", "-c", "cd frontend && npm install && npm run build"]

@@ -2,18 +2,18 @@
 //!
 //! These traits define the interfaces that game implementations must provide.
 
-mod piece;
-mod collection;
-mod state;
-mod rules;
-mod datasource;
 mod advisor;
+mod collection;
+mod datasource;
+mod piece;
 mod recognition;
+mod rules;
+mod state;
 
-pub use piece::*;
-pub use collection::*;
-pub use state::*;
-pub use rules::*;
-pub use datasource::*;
 pub use advisor::*;
+pub use collection::*;
+pub use datasource::*;
+pub use piece::*;
 pub use recognition::*;
+pub use rules::*;
+pub use state::*;

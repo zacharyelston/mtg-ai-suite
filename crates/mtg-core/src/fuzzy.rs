@@ -3,7 +3,6 @@
 //! This module provides fast fuzzy matching using edit distance algorithms.
 //! It's designed to handle OCR errors and typos in card name recognition.
 
-use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use strsim::{jaro_winkler, levenshtein};
 use tracing::instrument;
@@ -86,10 +85,7 @@ impl FuzzyMatcher {
 
     /// Create a new fuzzy matcher with custom configuration
     pub fn with_config(cards: Vec<(String, String)>, config: FuzzyConfig) -> Self {
-        let normalized = cards
-            .iter()
-            .map(|(name, _)| name.to_lowercase())
-            .collect();
+        let normalized = cards.iter().map(|(name, _)| name.to_lowercase()).collect();
 
         Self {
             cards,
@@ -219,8 +215,7 @@ pub fn normalize_card_name(name: &str) -> String {
 /// Common OCR error corrections
 pub fn correct_ocr_errors(text: &str) -> String {
     text.replace('0', "O")
-        .replace('1', "l")
-        .replace('|', "l")
+        .replace(['1', '|'], "l")
         .replace("rn", "m")
         .replace("vv", "w")
 }
@@ -287,7 +282,13 @@ mod tests {
 
     #[test]
     fn test_find_all() {
-        let matcher = FuzzyMatcher::new(test_cards());
+        // Use a config with higher max_edit_distance for partial matching
+        let config = FuzzyConfig {
+            max_edit_distance: 10,
+            min_confidence: 0.5,
+            ..Default::default()
+        };
+        let matcher = FuzzyMatcher::with_config(test_cards(), config);
         let results = matcher.find_all("Lightning");
 
         assert!(results.len() >= 2);
@@ -309,7 +310,10 @@ mod tests {
     #[test]
     fn test_normalize_card_name() {
         assert_eq!(normalize_card_name("Lightning Bolt"), "lightning bolt");
-        assert_eq!(normalize_card_name("  Multiple   Spaces  "), "multiple spaces");
+        assert_eq!(
+            normalize_card_name("  Multiple   Spaces  "),
+            "multiple spaces"
+        );
         assert_eq!(normalize_card_name("Card's Name"), "cards name");
     }
 

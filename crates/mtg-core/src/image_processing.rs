@@ -61,7 +61,7 @@ pub struct ProcessedImage {
 
 impl ProcessedImage {
     /// Convert to JPEG bytes
-    pub fn to_jpeg(&self, quality: u8) -> Result<Vec<u8>> {
+    pub fn to_jpeg(&self, _quality: u8) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
         let mut cursor = std::io::Cursor::new(&mut buffer);
 
@@ -117,16 +117,17 @@ pub fn process_image(data: &[u8], config: &ImageConfig) -> Result<ProcessedImage
     }
 
     // Resize if needed
-    let (img, was_resized) = if original_width > config.max_width || original_height > config.max_height {
-        let resized = img.resize(
-            config.max_width,
-            config.max_height,
-            image::imageops::FilterType::Lanczos3,
-        );
-        (resized, true)
-    } else {
-        (img, false)
-    };
+    let (img, was_resized) =
+        if original_width > config.max_width || original_height > config.max_height {
+            let resized = img.resize(
+                config.max_width,
+                config.max_height,
+                image::imageops::FilterType::Lanczos3,
+            );
+            (resized, true)
+        } else {
+            (img, false)
+        };
 
     let (width, height) = img.dimensions();
 
@@ -201,7 +202,8 @@ pub fn calculate_quality_score(img: &DynamicImage) -> f64 {
     // Calculate variance (measure of contrast/sharpness)
     let pixels: Vec<f64> = gray.pixels().map(|p| p.0[0] as f64).collect();
     let mean: f64 = pixels.iter().sum::<f64>() / pixels.len() as f64;
-    let variance: f64 = pixels.iter().map(|p| (p - mean).powi(2)).sum::<f64>() / pixels.len() as f64;
+    let variance: f64 =
+        pixels.iter().map(|p| (p - mean).powi(2)).sum::<f64>() / pixels.len() as f64;
 
     // Normalize variance to 0-1 range (assuming max variance of ~6500 for 8-bit image)
     let normalized_variance = (variance / 6500.0).min(1.0);

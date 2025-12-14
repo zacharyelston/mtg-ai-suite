@@ -19,11 +19,21 @@ pub struct MyGamePiece {
 impl GamePiece for MyGamePiece {
     type Id = String;
 
-    fn name(&self) -> &str { &self.name }
-    fn id(&self) -> &Self::Id { &self.id }
-    fn image_url(&self) -> Option<&str> { None }
-    fn searchable_text(&self) -> String { self.name.clone() }
-    fn category(&self) -> &str { "piece" }
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+    fn image_url(&self) -> Option<&str> {
+        None
+    }
+    fn searchable_text(&self) -> String {
+        self.name.clone()
+    }
+    fn category(&self) -> &str {
+        "piece"
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -37,9 +47,15 @@ pub struct MyGameCollection {
 }
 
 impl GameCollection<MyGamePiece> for MyGameCollection {
-    fn id(&self) -> uuid::Uuid { self.id }
-    fn name(&self) -> &str { &self.name }
-    fn entries(&self) -> Vec<CollectionEntry<String>> { self.entries.clone() }
+    fn id(&self) -> uuid::Uuid {
+        self.id
+    }
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn entries(&self) -> Vec<CollectionEntry<String>> {
+        self.entries.clone()
+    }
     fn add(&mut self, piece_id: String, quantity: u32) -> u32 {
         self.entries.push(CollectionEntry::new(piece_id, quantity));
         quantity
@@ -48,7 +64,9 @@ impl GameCollection<MyGamePiece> for MyGameCollection {
         self.entries.retain(|e| &e.piece_id != piece_id);
         true
     }
-    fn clear(&mut self) { self.entries.clear(); }
+    fn clear(&mut self) {
+        self.entries.clear();
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

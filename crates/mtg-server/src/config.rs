@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 /// Server configuration
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 pub struct Config {
     /// Server port
     #[serde(default = "default_port")]
@@ -60,14 +61,11 @@ impl Config {
                 .ok()
                 .and_then(|p| p.parse().ok())
                 .unwrap_or_else(default_port),
-            database_url: std::env::var("DATABASE_URL")
-                .unwrap_or_else(|_| default_database_url()),
+            database_url: std::env::var("DATABASE_URL").unwrap_or_else(|_| default_database_url()),
             redis_url: std::env::var("REDIS_URL").ok(),
             llm_api_key: std::env::var("LLM_API_KEY").ok(),
-            llm_provider: std::env::var("LLM_PROVIDER")
-                .unwrap_or_else(|_| default_llm_provider()),
-            secret_key: std::env::var("SECRET_KEY")
-                .unwrap_or_else(|_| default_secret_key()),
+            llm_provider: std::env::var("LLM_PROVIDER").unwrap_or_else(|_| default_llm_provider()),
+            secret_key: std::env::var("SECRET_KEY").unwrap_or_else(|_| default_secret_key()),
             hash_rounds: std::env::var("HASH_ROUNDS")
                 .ok()
                 .and_then(|r| r.parse().ok())

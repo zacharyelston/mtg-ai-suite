@@ -29,10 +29,8 @@ impl CardMatcher {
         let cards: Vec<CardEntry> = serde_json::from_str(cards_json)
             .map_err(|e| JsValue::from_str(&format!("Failed to parse cards: {}", e)))?;
 
-        let card_tuples: Vec<(String, String)> = cards
-            .into_iter()
-            .map(|c| (c.name, c.scryfall_id))
-            .collect();
+        let card_tuples: Vec<(String, String)> =
+            cards.into_iter().map(|c| (c.name, c.scryfall_id)).collect();
 
         Ok(CardMatcher {
             matcher: FuzzyMatcher::new(card_tuples),
@@ -45,9 +43,9 @@ impl CardMatcher {
     /// or null if no match found
     #[wasm_bindgen]
     pub fn find(&self, query: &str) -> Option<String> {
-        self.matcher.find(query).map(|result| {
-            serde_json::to_string(&WasmMatchResult::from(result)).unwrap_or_default()
-        })
+        self.matcher
+            .find(query)
+            .map(|result| serde_json::to_string(&WasmMatchResult::from(result)).unwrap_or_default())
     }
 
     /// Find all matches for a query string
@@ -120,8 +118,7 @@ pub fn preprocess_image(image_data: &[u8]) -> Result<Vec<u8>, JsValue> {
 pub fn calculate_quality(width: u32, height: u32, _image_data: &[u8]) -> f64 {
     // Simple quality heuristic based on resolution
     let min_dimension = width.min(height);
-    let quality = (min_dimension as f64 / 1000.0).min(1.0);
-    quality
+    (min_dimension as f64 / 1000.0).min(1.0)
 }
 
 /// Normalize text for matching (lowercase, remove special chars)

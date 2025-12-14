@@ -8,11 +8,16 @@ use colored::Colorize;
 use uuid::Uuid;
 
 /// Create a new API key
-pub async fn create(name: &str, permissions: &str, expires: &str, json_output: bool) -> anyhow::Result<()> {
+pub async fn create(
+    name: &str,
+    permissions: &str,
+    expires: &str,
+    json_output: bool,
+) -> anyhow::Result<()> {
     // Generate a new API key
     let key_id = Uuid::new_v4();
     let raw_key = generate_api_key();
-    
+
     // Hash the key for storage
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
@@ -46,7 +51,10 @@ pub async fn create(name: &str, permissions: &str, expires: &str, json_output: b
         println!("  {} {:?}", "Permissions:".bold(), permissions_list);
         println!("  {} {}", "Expires:".bold(), expires);
         println!();
-        println!("{}", "  API Key (save this - it won't be shown again):".yellow());
+        println!(
+            "{}",
+            "  API Key (save this - it won't be shown again):".yellow()
+        );
         println!("  {}", raw_key.cyan().bold());
         println!();
         println!("{}", "  Add this to your mobile app to connect.".dimmed());
@@ -74,15 +82,16 @@ pub async fn list(active_only: bool, json_output: bool) -> anyhow::Result<()> {
                 }
             })
         );
+    } else if keys.is_empty() {
+        println!("{}", "No API keys found.".dimmed());
+        println!();
+        println!(
+            "Create one with: {} apikey create --name \"My Device\"",
+            "mtg-ai-suite".cyan()
+        );
     } else {
-        if keys.is_empty() {
-            println!("{}", "No API keys found.".dimmed());
-            println!();
-            println!("Create one with: {} apikey create --name \"My Device\"", "mtg-ai-suite".cyan());
-        } else {
-            println!("{}", "API Keys:".bold());
-            // TODO: Print table of keys
-        }
+        println!("{}", "API Keys:".bold());
+        // TODO: Print table of keys
     }
 
     Ok(())
@@ -91,7 +100,10 @@ pub async fn list(active_only: bool, json_output: bool) -> anyhow::Result<()> {
 /// Revoke an API key
 pub async fn revoke(key_id: &str, force: bool) -> anyhow::Result<()> {
     if !force {
-        println!("{}", "Are you sure you want to revoke this API key?".yellow());
+        println!(
+            "{}",
+            "Are you sure you want to revoke this API key?".yellow()
+        );
         println!("Key ID: {}", key_id);
         println!();
         println!("This action cannot be undone. The client will lose access immediately.");

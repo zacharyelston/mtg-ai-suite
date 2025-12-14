@@ -1,12 +1,13 @@
 //! Scryfall API - implements GameDataSource trait
 
 use crate::card::MtgCard;
-use cardgame_core::prelude::*;
 use async_trait::async_trait;
+use cardgame_core::prelude::*;
 use chrono::{DateTime, Utc};
 
 pub struct ScryfallDataSource {
     base_url: String,
+    #[allow(dead_code)]
     client: reqwest::Client,
 }
 
@@ -35,7 +36,11 @@ impl GameDataSource<MtgCard> for ScryfallDataSource {
         Err(FrameworkError::PieceNotFound { id: id.clone() })
     }
 
-    async fn search(&self, _query: &str, _options: SearchOptions) -> FrameworkResult<SearchResult<MtgCard>> {
+    async fn search(
+        &self,
+        _query: &str,
+        _options: SearchOptions,
+    ) -> FrameworkResult<SearchResult<MtgCard>> {
         // TODO: Implement actual API call
         Ok(SearchResult {
             pieces: vec![],

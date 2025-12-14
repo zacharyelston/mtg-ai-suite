@@ -16,7 +16,15 @@ pub struct ProcessedImage {
 
 impl ProcessedImage {
     pub fn new(data: Vec<u8>, width: u32, height: u32) -> Self {
-        Self { data, width, height, original_width: width, original_height: height, quality_score: 1.0, was_resized: false }
+        Self {
+            data,
+            width,
+            height,
+            original_width: width,
+            original_height: height,
+            quality_score: 1.0,
+            was_resized: false,
+        }
     }
 }
 
@@ -32,7 +40,13 @@ pub struct BoundingBox {
 
 impl BoundingBox {
     pub fn new(x: f64, y: f64, width: f64, height: f64) -> Self {
-        Self { x, y, width, height, rotation: 0.0 }
+        Self {
+            x,
+            y,
+            width,
+            height,
+            rotation: 0.0,
+        }
     }
 }
 

@@ -37,10 +37,7 @@ use serde::{Deserialize, Serialize};
 #[async_trait]
 pub trait RecognitionProvider<P: GamePiece>: Send + Sync {
     /// Recognize a single piece from an image.
-    async fn recognize(
-        &self,
-        image: &ProcessedImage,
-    ) -> FrameworkResult<RecognitionResult<P::Id>>;
+    async fn recognize(&self, image: &ProcessedImage) -> FrameworkResult<RecognitionResult<P::Id>>;
 
     /// Recognize multiple pieces from a board/table image.
     async fn recognize_board(
@@ -236,8 +233,10 @@ mod tests {
 
     #[test]
     fn test_detected_state() {
-        let mut state = DetectedPieceState::default();
-        state.tapped = Some(true);
+        let mut state = DetectedPieceState {
+            tapped: Some(true),
+            ..Default::default()
+        };
         state.counters.insert("+1/+1".into(), 3);
 
         assert_eq!(state.tapped, Some(true));

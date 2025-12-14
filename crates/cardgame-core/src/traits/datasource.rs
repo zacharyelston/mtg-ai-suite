@@ -45,7 +45,8 @@ pub trait GameDataSource<P: GamePiece>: Send + Sync {
     }
 
     /// Search for pieces matching a query.
-    async fn search(&self, query: &str, options: SearchOptions) -> FrameworkResult<SearchResult<P>>;
+    async fn search(&self, query: &str, options: SearchOptions)
+        -> FrameworkResult<SearchResult<P>>;
 
     /// Autocomplete piece names.
     ///

@@ -3,7 +3,12 @@
 use colored::Colorize;
 
 /// Start the server
-pub async fn start(port: u16, host: &str, workers: Option<usize>, daemon: bool) -> anyhow::Result<()> {
+pub async fn start(
+    port: u16,
+    host: &str,
+    workers: Option<usize>,
+    daemon: bool,
+) -> anyhow::Result<()> {
     println!("{}", "Starting MTG AI Suite server...".cyan());
     println!();
     println!("  {} {}:{}", "Address:".bold(), host, port);
@@ -19,10 +24,13 @@ pub async fn start(port: u16, host: &str, workers: Option<usize>, daemon: bool) 
         println!("Use 'mtg-ai-suite server status' to check status.");
     } else {
         // TODO: Start server in foreground
-        println!("{}", "Server would start here (not yet implemented)".yellow());
+        println!(
+            "{}",
+            "Server would start here (not yet implemented)".yellow()
+        );
         println!();
         println!("For now, run the server directly:");
-        println!("  {} {}", "cargo run -p mtg-server".cyan(), "");
+        println!("  {}", "cargo run -p mtg-server".cyan());
     }
 
     Ok(())
@@ -42,9 +50,9 @@ pub async fn status() -> anyhow::Result<()> {
     println!("{}", "Server Status".bold());
     println!();
     println!("  {} {}", "Status:".bold(), "Unknown".yellow());
-    println!("  {} {}", "Uptime:".bold(), "N/A");
-    println!("  {} {}", "Connections:".bold(), "N/A");
-    println!("  {} {}", "Memory:".bold(), "N/A");
+    println!("  {} N/A", "Uptime:".bold());
+    println!("  {} N/A", "Connections:".bold());
+    println!("  {} N/A", "Memory:".bold());
     println!();
     println!("{}", "(Status check not yet implemented)".dimmed());
     Ok(())
@@ -57,10 +65,10 @@ pub async fn logs(follow: bool, lines: usize) -> anyhow::Result<()> {
         println!("{}", "(Following mode - Ctrl+C to exit)".dimmed());
     }
     println!();
-    
+
     // TODO: Read and display logs
     println!("{}", "(Log viewing not yet implemented)".yellow());
-    
+
     Ok(())
 }
 
@@ -87,9 +95,9 @@ pub async fn config(action: &str, key: Option<&str>, value: Option<&str>) -> any
             println!("{}", "Configuration:".bold());
             println!();
             // TODO: List all config values
-            println!("  {} {}", "PORT:".bold(), "8080");
-            println!("  {} {}", "DATABASE_URL:".bold(), "(set)");
-            println!("  {} {}", "LLM_PROVIDER:".bold(), "openai");
+            println!("  {} 8080", "PORT:".bold());
+            println!("  {} (set)", "DATABASE_URL:".bold());
+            println!("  {} openai", "LLM_PROVIDER:".bold());
             println!("  {} {}", "LLM_API_KEY:".bold(), "(not set)".dimmed());
         }
         "reset" => {

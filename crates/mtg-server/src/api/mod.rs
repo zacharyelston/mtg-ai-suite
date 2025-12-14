@@ -19,7 +19,10 @@ pub fn v1_routes() -> Router {
         .route("/captures", get(captures::list_captures))
         .route("/captures", post(captures::create_capture))
         .route("/captures/:id", get(captures::get_capture))
-        .route("/captures/:id", axum::routing::patch(captures::update_capture))
+        .route(
+            "/captures/:id",
+            axum::routing::patch(captures::update_capture),
+        )
 }
 
 /// Verify API key and return client info

@@ -12,11 +12,19 @@ pub struct ValidationResult {
 
 impl ValidationResult {
     pub fn valid() -> Self {
-        Self { is_valid: true, errors: vec![], warnings: vec![] }
+        Self {
+            is_valid: true,
+            errors: vec![],
+            warnings: vec![],
+        }
     }
 
     pub fn invalid(errors: Vec<ValidationError>) -> Self {
-        Self { is_valid: false, errors, warnings: vec![] }
+        Self {
+            is_valid: false,
+            errors,
+            warnings: vec![],
+        }
     }
 
     pub fn with_warning(mut self, warning: ValidationWarning) -> Self {

@@ -219,9 +219,11 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Commands::Apikey(cmd) => match cmd {
-            ApikeyCommands::Create { name, permissions, expires } => {
-                commands::apikey::create(&name, &permissions, &expires, cli.json).await
-            }
+            ApikeyCommands::Create {
+                name,
+                permissions,
+                expires,
+            } => commands::apikey::create(&name, &permissions, &expires, cli.json).await,
             ApikeyCommands::List { active_only } => {
                 commands::apikey::list(active_only, cli.json).await
             }
@@ -233,14 +235,15 @@ async fn main() -> anyhow::Result<()> {
             }
         },
         Commands::Server(cmd) => match cmd {
-            ServerCommands::Start { port, host, workers, daemon } => {
-                commands::server::start(port, &host, workers, daemon).await
-            }
+            ServerCommands::Start {
+                port,
+                host,
+                workers,
+                daemon,
+            } => commands::server::start(port, &host, workers, daemon).await,
             ServerCommands::Stop => commands::server::stop().await,
             ServerCommands::Status => commands::server::status().await,
-            ServerCommands::Logs { follow, lines } => {
-                commands::server::logs(follow, lines).await
-            }
+            ServerCommands::Logs { follow, lines } => commands::server::logs(follow, lines).await,
             ServerCommands::Config { action, key, value } => {
                 commands::server::config(&action, key.as_deref(), value.as_deref()).await
             }
@@ -249,23 +252,20 @@ async fn main() -> anyhow::Result<()> {
             DbCommands::Migrate { target, dry_run } => {
                 commands::db::migrate(target.as_deref(), dry_run).await
             }
-            DbCommands::Seed { source, incremental } => {
-                commands::db::seed(&source, incremental).await
-            }
+            DbCommands::Seed {
+                source,
+                incremental,
+            } => commands::db::seed(&source, incremental).await,
             DbCommands::Backup { output, compress } => {
                 commands::db::backup(&output, compress).await
             }
-            DbCommands::Restore { input, force } => {
-                commands::db::restore(&input, force).await
-            }
+            DbCommands::Restore { input, force } => commands::db::restore(&input, force).await,
         },
         Commands::Test(cmd) => match cmd {
             TestCommands::Recognition { catalog, format } => {
                 commands::test::recognition(&catalog, &format).await
             }
-            TestCommands::Benchmark { iterations } => {
-                commands::test::benchmark(iterations).await
-            }
+            TestCommands::Benchmark { iterations } => commands::test::benchmark(iterations).await,
         },
     }
 }

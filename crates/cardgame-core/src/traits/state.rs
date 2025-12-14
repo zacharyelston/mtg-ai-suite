@@ -1,7 +1,7 @@
 //! GameState trait - represents the current state of a game
 
 use super::piece::GamePiece;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 
 /// Current state of a game in progress.
@@ -82,7 +82,9 @@ pub trait GameState: Send + Sync + Clone + Debug + Serialize + DeserializeOwned 
 }
 
 /// A game action that can be taken.
-pub trait GameAction: Send + Sync + Clone + Debug + PartialEq + Serialize + DeserializeOwned {
+pub trait GameAction:
+    Send + Sync + Clone + Debug + PartialEq + Serialize + DeserializeOwned
+{
     /// Human-readable description of this action
     fn description(&self) -> String;
 

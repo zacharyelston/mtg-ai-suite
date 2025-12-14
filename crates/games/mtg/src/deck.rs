@@ -55,7 +55,8 @@ impl GameCollection<MtgCard> for MtgDeck {
             entry.quantity += quantity;
             entry.quantity
         } else {
-            self.mainboard.push(CollectionEntry::new(piece_id, quantity));
+            self.mainboard
+                .push(CollectionEntry::new(piece_id, quantity));
             quantity
         }
     }

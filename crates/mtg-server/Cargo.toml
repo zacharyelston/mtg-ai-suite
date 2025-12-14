@@ -57,6 +57,7 @@ base64 = { workspace = true }
 [dev-dependencies]
 tokio-test = { workspace = true }
 wiremock = { workspace = true }
+tower = { version = "0.5", features = ["util"] }
 
 [features]
 default = []

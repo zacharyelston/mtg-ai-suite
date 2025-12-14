@@ -11,7 +11,6 @@ pub enum FrameworkError {
     // ═══════════════════════════════════════════════════════
     // Recognition Errors
     // ═══════════════════════════════════════════════════════
-    
     /// Image is too small for reliable recognition
     #[error("Image too small: {width}x{height}, minimum is {min_width}x{min_height}")]
     ImageTooSmall {
@@ -44,23 +43,24 @@ pub enum FrameworkError {
     // ═══════════════════════════════════════════════════════
     // Data Source Errors
     // ═══════════════════════════════════════════════════════
-    
     /// Data source not available
-    #[error("Data source unavailable: {source}")]
-    DataSourceUnavailable { source: String },
+    #[error("Data source unavailable: {name}")]
+    DataSourceUnavailable { name: String },
 
     /// Piece not found in data source
     #[error("Piece not found: {id}")]
     PieceNotFound { id: String },
 
     /// Rate limited by data source
-    #[error("Rate limited by {source}, retry after {retry_after_secs}s")]
-    RateLimited { source: String, retry_after_secs: u64 },
+    #[error("Rate limited by {provider}, retry after {retry_after_secs}s")]
+    RateLimited {
+        provider: String,
+        retry_after_secs: u64,
+    },
 
     // ═══════════════════════════════════════════════════════
     // Game State Errors
     // ═══════════════════════════════════════════════════════
-    
     /// Invalid game action
     #[error("Invalid action: {reason}")]
     InvalidAction { reason: String },
@@ -76,19 +76,20 @@ pub enum FrameworkError {
     // ═══════════════════════════════════════════════════════
     // Collection Errors
     // ═══════════════════════════════════════════════════════
-    
     /// Collection validation failed
     #[error("Collection validation failed: {reason}")]
     ValidationFailed { reason: String },
 
     /// Piece not in collection
     #[error("Piece {piece_id} not in collection {collection_id}")]
-    PieceNotInCollection { piece_id: String, collection_id: String },
+    PieceNotInCollection {
+        piece_id: String,
+        collection_id: String,
+    },
 
     // ═══════════════════════════════════════════════════════
     // LLM Errors
     // ═══════════════════════════════════════════════════════
-    
     /// LLM provider error
     #[error("LLM error from {provider}: {message}")]
     LlmError { provider: String, message: String },
@@ -100,7 +101,6 @@ pub enum FrameworkError {
     // ═══════════════════════════════════════════════════════
     // Infrastructure Errors
     // ═══════════════════════════════════════════════════════
-    
     /// Network error
     #[error("Network error: {0}")]
     Network(String),
@@ -124,7 +124,6 @@ pub enum FrameworkError {
     // ═══════════════════════════════════════════════════════
     // Game-Specific Errors
     // ═══════════════════════════════════════════════════════
-    
     /// Game-specific error (wrapped)
     #[error("Game error: {0}")]
     GameSpecific(String),
@@ -144,7 +143,9 @@ impl FrameworkError {
     /// Get retry delay in seconds (if applicable)
     pub fn retry_delay(&self) -> Option<u64> {
         match self {
-            FrameworkError::RateLimited { retry_after_secs, .. } => Some(*retry_after_secs),
+            FrameworkError::RateLimited {
+                retry_after_secs, ..
+            } => Some(*retry_after_secs),
             FrameworkError::Network(_) => Some(5),
             FrameworkError::DataSourceUnavailable { .. } => Some(30),
             _ => None,
@@ -172,14 +173,16 @@ mod tests {
         let network_err = FrameworkError::Network("timeout".into());
         assert!(network_err.is_retryable());
 
-        let match_err = FrameworkError::NoMatch { text: "test".into() };
+        let match_err = FrameworkError::NoMatch {
+            text: "test".into(),
+        };
         assert!(!match_err.is_retryable());
     }
 
     #[test]
     fn test_retry_delay() {
         let rate_limit = FrameworkError::RateLimited {
-            source: "api".into(),
+            provider: "api".into(),
             retry_after_secs: 60,
         };
         assert_eq!(rate_limit.retry_delay(), Some(60));

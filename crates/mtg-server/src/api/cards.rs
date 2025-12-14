@@ -7,6 +7,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ListCardsQuery {
     pub q: Option<String>,
     pub limit: Option<u32>,

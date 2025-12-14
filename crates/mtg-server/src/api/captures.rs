@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ListCapturesQuery {
     pub limit: Option<u32>,
     pub offset: Option<u32>,
@@ -24,12 +25,14 @@ pub struct CreateCaptureRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CaptureMetadata {
     pub captured_at: String,
     pub client_recognition: Option<ClientRecognition>,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ClientRecognition {
     pub card_name: Option<String>,
     pub confidence: Option<f64>,

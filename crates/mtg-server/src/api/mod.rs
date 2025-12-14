@@ -2,9 +2,18 @@
 
 pub mod captures;
 pub mod cards;
+pub mod dashboard;
 pub mod health;
 
 use axum::{routing::get, routing::post, Router};
+
+pub fn dashboard_routes() -> Router {
+    Router::new()
+        .route("/", get(dashboard::dashboard_html))
+        .route("/api/stats", get(dashboard::get_stats))
+        .route("/api/clients", get(dashboard::get_clients))
+        .route("/api/logs", get(dashboard::get_logs))
+}
 
 /// Create API v1 routes
 pub fn v1_routes() -> Router {

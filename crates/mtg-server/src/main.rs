@@ -34,6 +34,9 @@ async fn main() -> anyhow::Result<()> {
 
     info!("Starting MTG AI Suite server on port {}", config.port);
 
+    // Initialize dashboard stats
+    api::dashboard::init_stats();
+
     // Build router
     let app = create_router();
 
@@ -59,6 +62,8 @@ fn create_router() -> Router {
     Router::new()
         // Health check
         .route("/health", get(api::health::health_check))
+        // Dashboard
+        .nest("/dashboard", api::dashboard_routes())
         // API v1 routes
         .nest("/api/v1", api::v1_routes())
         // Middleware

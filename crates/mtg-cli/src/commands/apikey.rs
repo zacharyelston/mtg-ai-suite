@@ -4,9 +4,72 @@ use argon2::{
     password_hash::{rand_core::OsRng, SaltString},
     Argon2, PasswordHasher,
 };
+use chrono::Utc;
 use colored::Colorize;
+use serde::{Deserialize, Serialize};
 use std::fs;
+use std::path::Path;
 use uuid::Uuid;
+
+const CONFIG_PATH: &str = "config/server-config.json";
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ServerConfig {
+    version: String,
+    created_at: Option<chrono::DateTime<Utc>>,
+    updated_at: Option<chrono::DateTime<Utc>>,
+    server: ServerSecrets,
+    api_keys: Vec<ApiKeyEntry>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ServerSecrets {
+    secret_key: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ApiKeyEntry {
+    id: String,
+    name: String,
+    raw_key: Option<String>,
+    key_hash: String,
+    permissions: Vec<String>,
+    expires: String,
+    created_at: chrono::DateTime<Utc>,
+}
+
+impl ServerConfig {
+    fn load_or_init() -> anyhow::Result<Self> {
+        let path = Path::new(CONFIG_PATH);
+        if path.exists() {
+            let content = fs::read_to_string(path)?;
+            Ok(serde_json::from_str(&content)?)
+        } else {
+            Ok(Self::default())
+        }
+    }
+
+    fn save(&self) -> anyhow::Result<()> {
+        let path = Path::new(CONFIG_PATH);
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::write(path, serde_json::to_string_pretty(self)?)?;
+        Ok(())
+    }
+}
+
+impl Default for ServerConfig {
+    fn default() -> Self {
+        Self {
+            version: "1.0".to_string(),
+            created_at: Some(Utc::now()),
+            updated_at: Some(Utc::now()),
+            server: ServerSecrets { secret_key: None },
+            api_keys: vec![],
+        }
+    }
+}
 
 /// Create a new API key
 pub async fn create(
@@ -34,6 +97,20 @@ pub async fn create(
 
     // Format for client connection string
     let connection_string = format!("{}:{}", url, raw_key);
+
+    // Save to shared config
+    let mut config = ServerConfig::load_or_init()?;
+    config.api_keys.push(ApiKeyEntry {
+        id: key_id.to_string(),
+        name: name.to_string(),
+        raw_key: Some(raw_key.clone()),
+        key_hash: key_hash.clone(),
+        permissions: permissions_list.iter().map(|s| s.to_string()).collect(),
+        expires: expires.to_string(),
+        created_at: Utc::now(),
+    });
+    config.updated_at = Some(Utc::now());
+    config.save()?;
 
     if json_output {
         let json_data = serde_json::json!({

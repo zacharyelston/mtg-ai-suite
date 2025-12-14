@@ -14,6 +14,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod api;
 mod config;
+mod shared_config;
+
+pub use shared_config::{ServerConfig, ApiKeyEntry};
 
 use config::Config;
 

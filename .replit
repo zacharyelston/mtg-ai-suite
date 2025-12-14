@@ -2,6 +2,7 @@ modules = ["rust-stable", "nodejs-20", "python-3.11"]
 
 [agent]
 expertMode = true
+integrations = ["github:1.0.0"]
 
 [nix]
 channel = "stable-24_05"
@@ -16,16 +17,19 @@ runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
-mode = "sequential"
+mode = "parallel"
 author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "mkdir -p data && cargo run --bin mtg-server"
-waitForPort = 8080
 
-[workflows.workflow.metadata]
-outputType = "webview"
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
 
 [[workflows.workflow]]
 name = "Build"
@@ -51,8 +55,24 @@ author = "agent"
 task = "shell.exec"
 args = "pip install psycopg2-binary && python scripts/load_scryfall.py --bulk-type oracle_cards"
 
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[ports]]
 localPort = 8080
+externalPort = 80
+
+[[ports]]
+localPort = 5000
 externalPort = 80
 
 [deployment]

@@ -35,6 +35,9 @@ A Magic: The Gathering AI-powered toolkit for card database management, rules pr
 - **Card Details**: Modal view with full card information and pricing
 - **Random Card**: Get a random card from the database
 
+## GitHub Issues
+See [GitHub Issues](https://github.com/zacharyelston/mtg-ai-suite/issues) for tracked work items.
+
 ## Recent Changes
 - Configured for Replit environment
 - Updated Next.js to run on port 5000 with host 0.0.0.0
@@ -42,3 +45,5 @@ A Magic: The Gathering AI-powered toolkit for card database management, rules pr
 - Added functional card search feature with Scryfall integration
 - Added frontend unit tests (15 tests)
 - Added backend unit tests (2 tests)
+- Created develop branch review (DEVELOP_BRANCH_REVIEW.md)
+- Created GitHub issues #6-#12 from review findings

@@ -1,0 +1,815 @@
+# MTG AI Suite - Project Order of Operations
+# ==========================================
+# Starting from client intake as the foundation for all features.
+# Everything depends on the ability to capture and process card data.
+
+project:
+  name: MTG AI Suite
+  version: 0.1.0
+  approach: intake-first
+  
+# =============================================================================
+# PHASE 1: CLIENT CAPTURE FOUNDATION
+# =============================================================================
+# Goal: Enable reliable card image capture on mobile devices
+# Deliverable: Working camera capture with local preview
+# =============================================================================
+
+phase_1_client_capture:
+  name: "Client Capture Foundation"
+  priority: 1
+  duration: "1-2 weeks"
+  
+  dependencies: []
+  
+  milestones:
+    
+    1.1_camera_access:
+      name: "Camera Access & Permissions"
+      tasks:
+        - id: CAM-001
+          name: "Implement camera permission request flow"
+          description: "Request and handle camera permissions gracefully"
+          acceptance:
+            - "Permission dialog shown on first access"
+            - "Graceful fallback if denied"
+            - "Remember permission state"
+          
+        - id: CAM-002
+          name: "Camera stream initialization"
+          description: "Get video stream from device camera"
+          tech:
+            api: "navigator.mediaDevices.getUserMedia()"
+            constraints:
+              video:
+                facingMode: "environment"  # Rear camera preferred
+                width: { ideal: 1280 }
+                height: { ideal: 720 }
+          acceptance:
+            - "Stream starts within 2 seconds"
+            - "Rear camera selected by default"
+            - "Front camera fallback available"
+            
+        - id: CAM-003
+          name: "Camera viewfinder component"
+          description: "Display live camera feed in UI"
+          tech:
+            component: "CameraViewfinder"
+            features:
+              - "Full-screen video preview"
+              - "Aspect ratio preservation"
+              - "Orientation handling (portrait/landscape)"
+          acceptance:
+            - "No lag in preview"
+            - "Correct orientation on rotation"
+            
+    1.2_image_capture:
+      name: "Image Capture"
+      tasks:
+        - id: IMG-001
+          name: "Single frame capture"
+          description: "Capture still image from video stream"
+          tech:
+            method: "Canvas drawImage from video element"
+            output: "Blob (JPEG, quality 0.9)"
+          acceptance:
+            - "Capture completes < 100ms"
+            - "Image quality sufficient for OCR"
+            - "Haptic feedback on capture"
+            
+        - id: IMG-002
+          name: "Capture preview & confirmation"
+          description: "Show captured image for user review"
+          features:
+            - "Preview captured image"
+            - "Retake option"
+            - "Confirm/use option"
+            - "Pinch-to-zoom on preview"
+          acceptance:
+            - "Preview appears immediately"
+            - "User can retake unlimited times"
+            
+        - id: IMG-003
+          name: "Alternative input sources"
+          description: "Support non-camera image sources"
+          sources:
+            - name: "File upload"
+              api: "<input type='file' accept='image/*' capture='environment'>"
+            - name: "Gallery selection"
+              api: "<input type='file' accept='image/*'>"
+            - name: "Clipboard paste"
+              api: "navigator.clipboard.read()"
+            - name: "Drag and drop"
+              api: "HTML5 DnD API"
+          acceptance:
+            - "All sources produce same image format"
+            - "Large images auto-resized"
+            
+    1.3_image_preprocessing:
+      name: "Client-Side Image Preprocessing"
+      tasks:
+        - id: PRE-001
+          name: "Image normalization"
+          description: "Prepare image for OCR/ML processing"
+          operations:
+            - "Resize to max 1920px on longest edge"
+            - "Convert to JPEG if needed"
+            - "Compress to < 500KB"
+          tech:
+            library: "Compressor.js or Canvas API"
+          acceptance:
+            - "Processing < 500ms"
+            - "Quality preserved for text recognition"
+            
+        - id: PRE-002
+          name: "Card detection (optional enhancement)"
+          description: "Detect card boundaries in image"
+          tech:
+            library: "OpenCV.js or TensorFlow.js"
+            method: "Edge detection + contour finding"
+          features:
+            - "Auto-crop to card"
+            - "Perspective correction"
+            - "Rotation correction"
+          acceptance:
+            - "Works on 80%+ of well-lit images"
+            - "Graceful fallback to full image"
+            
+        - id: PRE-003
+          name: "Image metadata extraction"
+          description: "Extract useful metadata from image"
+          metadata:
+            - "Dimensions"
+            - "File size"
+            - "Capture timestamp"
+            - "Device info (if available)"
+          acceptance:
+            - "Metadata attached to every capture"
+
+# =============================================================================
+# PHASE 2: CLIENT-SIDE RECOGNITION (OFFLINE CAPABLE)
+# =============================================================================
+# Goal: Identify cards locally without server round-trip
+# Deliverable: Card name extraction with confidence score
+# =============================================================================
+
+phase_2_client_recognition:
+  name: "Client-Side Card Recognition"
+  priority: 2
+  duration: "2-3 weeks"
+  
+  dependencies:
+    - phase_1_client_capture
+    
+  milestones:
+  
+    2.1_ocr_integration:
+      name: "OCR Integration"
+      tasks:
+        - id: OCR-001
+          name: "Tesseract.js integration"
+          description: "Set up client-side OCR engine"
+          tech:
+            library: "tesseract.js@5"
+            worker: "Web Worker for non-blocking"
+            languages: ["eng"]
+          acceptance:
+            - "OCR runs in background thread"
+            - "UI remains responsive"
+            - "Progress indicator shown"
+            
+        - id: OCR-002
+          name: "Card name region targeting"
+          description: "Focus OCR on card name area"
+          approach:
+            - "Crop to top 15% of card (name region)"
+            - "Apply contrast enhancement"
+            - "Run OCR on cropped region"
+          acceptance:
+            - "Faster than full-image OCR"
+            - "Higher accuracy on name"
+            
+        - id: OCR-003
+          name: "OCR result post-processing"
+          description: "Clean up OCR output"
+          operations:
+            - "Remove non-alphanumeric noise"
+            - "Handle common OCR errors (0/O, 1/l)"
+            - "Extract candidate card names"
+          acceptance:
+            - "Clean string output"
+            - "Multiple candidates if ambiguous"
+            
+    2.2_fuzzy_matching:
+      name: "Fuzzy Card Name Matching"
+      tasks:
+        - id: FUZ-001
+          name: "Local card name dictionary"
+          description: "Downloadable card name list for offline matching"
+          tech:
+            source: "Scryfall/MTGJSON bulk data"
+            format: "Compressed JSON or SQLite"
+            size: "~2MB compressed (names only)"
+          storage: "IndexedDB"
+          acceptance:
+            - "Download on first launch"
+            - "Incremental updates"
+            - "Works fully offline"
+            
+        - id: FUZ-002
+          name: "SymSpell fuzzy search"
+          description: "Fast fuzzy matching for OCR results"
+          tech:
+            library: "symspell-js or custom implementation"
+            algorithm: "Symmetric Delete spelling correction"
+            max_edit_distance: 2
+          acceptance:
+            - "Match in < 50ms"
+            - "Handle 2 character errors"
+            - "Return top 5 candidates with scores"
+            
+        - id: FUZ-003
+          name: "Match confidence scoring"
+          description: "Calculate confidence in card identification"
+          factors:
+            - "Edit distance from OCR result"
+            - "OCR confidence score"
+            - "Image quality metrics"
+          output:
+            card_name: "string"
+            confidence: "0.0-1.0"
+            alternatives: "array of {name, score}"
+          acceptance:
+            - "Confidence correlates with accuracy"
+            - "Low confidence triggers user confirmation"
+            
+    2.3_recognition_ui:
+      name: "Recognition UI/UX"
+      tasks:
+        - id: RUI-001
+          name: "Real-time recognition feedback"
+          description: "Show recognition status during capture"
+          states:
+            - "Scanning..."
+            - "Card detected: [Name] (X% confidence)"
+            - "Could not identify - try again"
+            - "Multiple matches - please confirm"
+          acceptance:
+            - "Status updates within 1 second"
+            - "Clear visual feedback"
+            
+        - id: RUI-002
+          name: "Manual correction UI"
+          description: "Allow user to correct misidentified cards"
+          features:
+            - "Search/autocomplete for card name"
+            - "Select from alternatives list"
+            - "Quick re-scan option"
+          acceptance:
+            - "Correction takes < 5 seconds"
+            - "Corrected data used for training"
+            
+        - id: RUI-003
+          name: "Batch scan mode"
+          description: "Continuous scanning for multiple cards"
+          features:
+            - "Auto-advance after successful scan"
+            - "Running count of scanned cards"
+            - "Pause/resume capability"
+            - "Review all scanned cards"
+          acceptance:
+            - "Scan 10 cards in < 2 minutes"
+            - "Easy to correct errors in batch"
+
+# =============================================================================
+# PHASE 3: CLIENT-SERVER COMMUNICATION
+# =============================================================================
+# Goal: Establish reliable data sync between client and server
+# Deliverable: Images and recognition data uploaded to server
+# =============================================================================
+
+phase_3_client_server_sync:
+  name: "Client-Server Communication"
+  priority: 3
+  duration: "1-2 weeks"
+  
+  dependencies:
+    - phase_2_client_recognition
+    
+  milestones:
+  
+    3.1_server_connection:
+      name: "Server Connection Setup"
+      tasks:
+        - id: CON-001
+          name: "Server URL configuration"
+          description: "User enters their server URL"
+          validation:
+            - "URL format validation"
+            - "HTTPS required (except localhost)"
+            - "Health check endpoint ping"
+          storage: "Secure storage (encrypted)"
+          acceptance:
+            - "Invalid URLs rejected with message"
+            - "Connection test before saving"
+            
+        - id: CON-002
+          name: "API key authentication"
+          description: "Authenticate with server-generated API key"
+          flow:
+            1: "User enters API key from server CLI"
+            2: "Client sends key to /api/v1/auth/verify"
+            3: "Server returns client config + permissions"
+            4: "Client stores key securely"
+          acceptance:
+            - "Invalid keys rejected"
+            - "Key never logged or exposed"
+            - "Permissions enforced client-side"
+            
+        - id: CON-003
+          name: "Connection status indicator"
+          description: "Show real-time connection status"
+          states:
+            - "🟢 Connected"
+            - "🟡 Connecting..."
+            - "🔴 Offline"
+            - "⚠️ Auth error"
+          acceptance:
+            - "Status updates within 5 seconds"
+            - "Auto-reconnect on network restore"
+            
+    3.2_data_upload:
+      name: "Data Upload Pipeline"
+      tasks:
+        - id: UPL-001
+          name: "Image upload endpoint"
+          description: "Upload captured images to server"
+          endpoint: "POST /api/v1/captures"
+          payload:
+            image: "Base64 or multipart file"
+            metadata:
+              captured_at: "ISO timestamp"
+              device_id: "string"
+              client_recognition:
+                card_name: "string (if identified)"
+                confidence: "float"
+                ocr_raw: "string"
+          response:
+            capture_id: "UUID"
+            server_recognition:
+              card_id: "Scryfall ID"
+              card_name: "string"
+              confidence: "float"
+            status: "processed | queued | failed"
+          acceptance:
+            - "Upload < 3 seconds on 4G"
+            - "Progress indicator shown"
+            - "Retry on failure"
+            
+        - id: UPL-002
+          name: "Offline queue"
+          description: "Queue uploads when offline"
+          tech:
+            storage: "IndexedDB"
+            sync: "Background Sync API"
+          features:
+            - "Queue unlimited captures offline"
+            - "Auto-sync when online"
+            - "Manual sync trigger"
+            - "Queue status visible to user"
+          acceptance:
+            - "No data loss when offline"
+            - "Sync completes in background"
+            
+        - id: UPL-003
+          name: "Upload optimization"
+          description: "Minimize bandwidth and battery"
+          optimizations:
+            - "Compress images before upload"
+            - "Batch multiple captures"
+            - "Delta sync for corrections"
+            - "Respect battery saver mode"
+          acceptance:
+            - "< 500KB per card image"
+            - "Batch up to 10 images per request"
+            
+    3.3_server_response_handling:
+      name: "Server Response Handling"
+      tasks:
+        - id: RSP-001
+          name: "Recognition result merge"
+          description: "Combine client and server recognition"
+          logic:
+            - "If server confidence > client: use server"
+            - "If conflict: prompt user to confirm"
+            - "Store both for training data"
+          acceptance:
+            - "Best result shown to user"
+            - "Conflicts clearly indicated"
+            
+        - id: RSP-002
+          name: "Card data enrichment"
+          description: "Fetch full card data after identification"
+          data:
+            - "Full card details from server cache"
+            - "Current prices"
+            - "Legality info"
+            - "High-res image URL"
+          acceptance:
+            - "Enrichment automatic after ID"
+            - "Cached locally for offline"
+            
+        - id: RSP-003
+          name: "Error handling"
+          description: "Handle server errors gracefully"
+          errors:
+            - "Network timeout → retry with backoff"
+            - "Auth error → prompt re-auth"
+            - "Server error → queue for retry"
+            - "Rate limit → respect Retry-After"
+          acceptance:
+            - "User informed of issues"
+            - "No silent failures"
+
+# =============================================================================
+# PHASE 4: SERVER-SIDE PROCESSING
+# =============================================================================
+# Goal: Process and store captured data on server
+# Deliverable: Persistent storage with enhanced recognition
+# =============================================================================
+
+phase_4_server_processing:
+  name: "Server-Side Processing"
+  priority: 4
+  duration: "2 weeks"
+  
+  dependencies:
+    - phase_3_client_server_sync
+    
+  milestones:
+  
+    4.1_capture_ingestion:
+      name: "Capture Ingestion"
+      tasks:
+        - id: ING-001
+          name: "Capture API endpoint"
+          description: "Receive and validate uploads"
+          validation:
+            - "API key valid and has 'write' permission"
+            - "Image format supported (JPEG, PNG, WebP)"
+            - "Image size within limits (< 10MB)"
+            - "Rate limit not exceeded"
+          acceptance:
+            - "Validation < 100ms"
+            - "Clear error messages"
+            
+        - id: ING-002
+          name: "Image storage"
+          description: "Store original images"
+          storage:
+            primary: "S3-compatible object storage"
+            fallback: "Local filesystem"
+            naming: "{client_id}/{date}/{capture_id}.jpg"
+          acceptance:
+            - "Images retrievable by ID"
+            - "Automatic cleanup policy (optional)"
+            
+        - id: ING-003
+          name: "Capture metadata storage"
+          description: "Store capture records in database"
+          schema:
+            table: "captures"
+            fields:
+              - "id: UUID PRIMARY KEY"
+              - "client_id: UUID REFERENCES clients"
+              - "image_path: TEXT"
+              - "captured_at: TIMESTAMP"
+              - "client_recognition: JSONB"
+              - "server_recognition: JSONB"
+              - "final_card_id: TEXT"
+              - "user_verified: BOOLEAN"
+              - "created_at: TIMESTAMP"
+          acceptance:
+            - "All captures persisted"
+            - "Queryable by client, date, card"
+            
+    4.2_server_recognition:
+      name: "Server-Side Recognition"
+      tasks:
+        - id: SRV-001
+          name: "Enhanced OCR processing"
+          description: "Server-side OCR with better models"
+          tech:
+            options:
+              - "Azure Computer Vision API"
+              - "Google Cloud Vision API"
+              - "Self-hosted Tesseract with custom training"
+          acceptance:
+            - "Higher accuracy than client OCR"
+            - "Configurable provider"
+            
+        - id: SRV-002
+          name: "ML-based card recognition"
+          description: "Image similarity matching"
+          tech:
+            approach: "Embedding comparison"
+            model: "Pre-trained image encoder"
+            index: "Vector similarity search (pgvector)"
+          acceptance:
+            - "Works even with poor OCR"
+            - "Handles alternate art"
+            
+        - id: SRV-003
+          name: "Recognition pipeline orchestration"
+          description: "Combine multiple recognition methods"
+          pipeline:
+            1: "Client OCR result (if provided)"
+            2: "Server OCR"
+            3: "Image embedding match"
+            4: "Ensemble voting"
+          output:
+            card_id: "Scryfall ID"
+            confidence: "float"
+            method: "which method succeeded"
+          acceptance:
+            - "Best method wins"
+            - "Fallback chain works"
+            
+    4.3_training_data_collection:
+      name: "Training Data Collection"
+      tasks:
+        - id: TRN-001
+          name: "Verified capture flagging"
+          description: "Mark captures as training data"
+          criteria:
+            - "User manually confirmed card ID"
+            - "High confidence server recognition"
+            - "Image quality above threshold"
+          acceptance:
+            - "Training set grows over time"
+            - "Quality filters applied"
+            
+        - id: TRN-002
+          name: "Training data export"
+          description: "Export data for model training"
+          format:
+            images: "Directory of JPEGs"
+            labels: "CSV with image_path, card_id, card_name"
+          cli: "mtg-ai-suite training export --output ./training_data"
+          acceptance:
+            - "Standard ML dataset format"
+            - "Reproducible exports"
+            
+        - id: TRN-003
+          name: "Continuous improvement loop"
+          description: "Use corrections to improve recognition"
+          flow:
+            1: "User corrects misidentification"
+            2: "Correction stored with original"
+            3: "Periodic model retraining"
+            4: "Updated model deployed"
+          acceptance:
+            - "Accuracy improves over time"
+            - "No manual intervention needed"
+
+# =============================================================================
+# PHASE 5: TESTING WITH CATALOG
+# =============================================================================
+# Goal: Enable uninterrupted gameplay testing with image catalog
+# Deliverable: Test harness with pre-captured images
+# =============================================================================
+
+phase_5_testing_catalog:
+  name: "Testing with Image Catalog"
+  priority: 5
+  duration: "1 week"
+  
+  dependencies:
+    - phase_4_server_processing
+    
+  milestones:
+  
+    5.1_test_image_catalog:
+      name: "Test Image Catalog"
+      tasks:
+        - id: CAT-001
+          name: "Seed image collection"
+          description: "Curated set of card images for testing"
+          contents:
+            - "100+ unique cards"
+            - "Multiple conditions (NM, played, foil)"
+            - "Various lighting conditions"
+            - "Different card frames (old, new, showcase)"
+          storage: "Git LFS or external hosting"
+          acceptance:
+            - "Representative sample"
+            - "Known ground truth labels"
+            
+        - id: CAT-002
+          name: "Test harness CLI"
+          description: "Run recognition on catalog"
+          cli: "mtg-ai-suite test recognition --catalog ./test_images"
+          output:
+            - "Accuracy metrics"
+            - "Confusion matrix"
+            - "Per-image results"
+          acceptance:
+            - "Reproducible test runs"
+            - "CI/CD integration ready"
+            
+        - id: CAT-003
+          name: "Regression testing"
+          description: "Detect accuracy regressions"
+          features:
+            - "Baseline accuracy stored"
+            - "Alert on regression > 2%"
+            - "Detailed diff report"
+          acceptance:
+            - "No silent regressions"
+            - "Clear pass/fail in CI"
+            
+    5.2_simulated_gameplay:
+      name: "Simulated Gameplay Testing"
+      tasks:
+        - id: SIM-001
+          name: "Game state from images"
+          description: "Construct game state from board photo"
+          input: "Image of battlefield"
+          output:
+            - "List of identified permanents"
+            - "Approximate board positions"
+            - "Tapped/untapped state (if detectable)"
+          acceptance:
+            - "Identifies 90%+ of visible cards"
+            - "Reasonable position mapping"
+            
+        - id: SIM-002
+          name: "Replay from catalog"
+          description: "Simulate game using catalog images"
+          features:
+            - "Load sequence of board states"
+            - "Test AI suggestions at each state"
+            - "Compare to known optimal plays"
+          acceptance:
+            - "End-to-end flow works"
+            - "AI suggestions reasonable"
+            
+        - id: SIM-003
+          name: "Performance benchmarks"
+          description: "Measure system performance"
+          metrics:
+            - "Recognition latency (p50, p95, p99)"
+            - "End-to-end capture-to-result time"
+            - "Server throughput (captures/second)"
+            - "Client battery impact"
+          acceptance:
+            - "Meets PRD performance targets"
+            - "No memory leaks"
+
+# =============================================================================
+# API CONTRACT SUMMARY
+# =============================================================================
+
+api_contract:
+  version: "v1"
+  base_path: "/api/v1"
+  
+  endpoints:
+    # Authentication
+    - method: POST
+      path: /auth/verify
+      description: "Verify API key and get client config"
+      request:
+        headers:
+          Authorization: "Bearer {api_key}"
+      response:
+        client_id: "UUID"
+        permissions: ["read", "write", "ai"]
+        server_version: "string"
+        
+    # Captures
+    - method: POST
+      path: /captures
+      description: "Upload a card capture"
+      request:
+        headers:
+          Authorization: "Bearer {api_key}"
+        body:
+          image: "Base64 string"
+          metadata:
+            captured_at: "ISO timestamp"
+            client_recognition:
+              card_name: "string"
+              confidence: "float"
+      response:
+        capture_id: "UUID"
+        server_recognition:
+          card_id: "string"
+          card_name: "string"
+          confidence: "float"
+          
+    - method: GET
+      path: /captures
+      description: "List captures for client"
+      request:
+        headers:
+          Authorization: "Bearer {api_key}"
+        query:
+          limit: "int (default 50)"
+          offset: "int (default 0)"
+          since: "ISO timestamp"
+      response:
+        captures: "array"
+        total: "int"
+        
+    - method: PATCH
+      path: /captures/{id}
+      description: "Update capture (e.g., correct card ID)"
+      request:
+        headers:
+          Authorization: "Bearer {api_key}"
+        body:
+          final_card_id: "string"
+          user_verified: "boolean"
+      response:
+        capture: "updated capture object"
+        
+    # Cards (for enrichment)
+    - method: GET
+      path: /cards/{id}
+      description: "Get card details by Scryfall ID"
+      response:
+        card: "full card object"
+        
+    - method: GET
+      path: /cards/autocomplete
+      description: "Autocomplete card names"
+      request:
+        query:
+          q: "string (min 2 chars)"
+      response:
+        suggestions: "array of strings"
+
+# =============================================================================
+# DELIVERABLES CHECKLIST
+# =============================================================================
+
+deliverables:
+  phase_1:
+    - "Camera capture component"
+    - "Image preprocessing utilities"
+    - "File/clipboard input handlers"
+    
+  phase_2:
+    - "Tesseract.js integration"
+    - "Local card name dictionary"
+    - "Fuzzy matching service"
+    - "Recognition UI components"
+    
+  phase_3:
+    - "Server connection flow"
+    - "API client with auth"
+    - "Offline queue with sync"
+    - "Error handling"
+    
+  phase_4:
+    - "Capture ingestion API"
+    - "Image storage service"
+    - "Server recognition pipeline"
+    - "Training data collection"
+    
+  phase_5:
+    - "Test image catalog"
+    - "Recognition test harness"
+    - "Performance benchmarks"
+    - "CI/CD integration"
+
+# =============================================================================
+# SUCCESS CRITERIA
+# =============================================================================
+
+success_criteria:
+  phase_1:
+    - "Camera works on iOS Safari and Android Chrome"
+    - "Image capture < 500ms"
+    - "All input sources functional"
+    
+  phase_2:
+    - "Card recognition accuracy > 85% on clear images"
+    - "Recognition time < 3 seconds on device"
+    - "Works fully offline after initial setup"
+    
+  phase_3:
+    - "Sync works reliably on flaky connections"
+    - "Zero data loss in offline scenarios"
+    - "Upload < 3 seconds per card"
+    
+  phase_4:
+    - "Server recognition accuracy > 95%"
+    - "Processing < 2 seconds per capture"
+    - "Training data accumulates correctly"
+    
+  phase_5:
+    - "Test suite passes with > 90% accuracy"
+    - "No performance regressions"
+    - "Ready for gameplay feature development"

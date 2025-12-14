@@ -1,0 +1,37 @@
+# MTG AI Suite - Development Dockerfile
+# Includes all development tools and hot-reload support
+
+FROM rust:1.75-bookworm
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    postgresql-client \
+    redis-tools \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust tools
+RUN rustup component add rustfmt clippy
+RUN cargo install cargo-watch sqlx-cli wasm-pack
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
+# Create non-root user
+RUN useradd -m -u 1000 dev
+RUN chown -R dev:dev /app
+
+USER dev
+
+# Expose ports
+EXPOSE 8080 3000
+
+# Default command (can be overridden)
+CMD ["bash"]

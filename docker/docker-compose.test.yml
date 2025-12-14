@@ -1,0 +1,36 @@
+# MTG AI Suite - Integration Test Environment
+# Uses SQLite for lightweight, self-contained testing
+
+version: '3.8'
+
+services:
+  # ============================================
+  # Integration Test Runner
+  # ============================================
+  test-runner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.test
+    environment:
+      - DATABASE_URL=sqlite:///app/data/test.db
+      - REDIS_URL=redis://redis:6379
+      - RUST_LOG=debug
+      - RUST_BACKTRACE=1
+    depends_on:
+      redis:
+        condition: service_started
+    volumes:
+      - test-data:/app/data
+    command: cargo test --all --features integration
+
+  # ============================================
+  # Redis (for caching tests)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly no
+
+volumes:
+  test-data:

@@ -1,0 +1,60 @@
+# MTG AI Suite - CI Validation Dockerfile
+# Mirrors GitHub Actions CI environment for local testing
+
+FROM rust:latest
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust components
+RUN rustup component add rustfmt clippy
+RUN rustup target add wasm32-unknown-unknown
+
+# Install wasm-pack for WASM builds
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+# Copy workspace files
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+
+# ============================================
+# CI Check 1: Format check
+# ============================================
+RUN echo "=== Running cargo fmt check ===" && \
+    cargo fmt --all -- --check
+
+# ============================================
+# CI Check 2: Clippy lints
+# ============================================
+RUN echo "=== Running cargo clippy ===" && \
+    cargo clippy --all-targets --all-features -- -D warnings
+
+# ============================================
+# CI Check 3: Unit tests
+# ============================================
+RUN echo "=== Running cargo test ===" && \
+    cargo test --all
+
+# ============================================
+# CI Check 4: WASM build
+# ============================================
+RUN echo "=== Building WASM module ===" && \
+    cd crates/mtg-wasm && \
+    wasm-pack build --target web --release
+
+# ============================================
+# CI Check 5: Release build
+# ============================================
+RUN echo "=== Building release binaries ===" && \
+    cargo build --release --bin mtg-server --bin mtg-ai-suite
+
+# Success marker
+RUN echo "=== All CI checks passed! ==="
+
+CMD ["echo", "CI validation complete"]

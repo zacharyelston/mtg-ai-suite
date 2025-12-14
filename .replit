@@ -14,7 +14,6 @@ channel = "stable-24_05"
 [env]
 RUST_LOG = "info"
 PORT = "8080"
-DATABASE_URL = "sqlite:./data/dev.db"
 
 [workflows]
 runButton = "Project"

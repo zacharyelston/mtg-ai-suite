@@ -4,6 +4,20 @@ const nextConfig = {
   images: {
     domains: ['cards.scryfall.io', 'c1.scryfall.com'],
   },
+  allowedDevOrigins: ['*'],
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig

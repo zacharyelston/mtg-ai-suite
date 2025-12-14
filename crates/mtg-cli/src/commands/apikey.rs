@@ -5,6 +5,7 @@ use argon2::{
     Argon2, PasswordHasher,
 };
 use colored::Colorize;
+use std::fs;
 use uuid::Uuid;
 
 /// Create a new API key
@@ -13,6 +14,8 @@ pub async fn create(
     permissions: &str,
     expires: &str,
     json_output: bool,
+    output_file: Option<&str>,
+    backend_url: Option<&str>,
 ) -> anyhow::Result<()> {
     // Generate a new API key
     let key_id = Uuid::new_v4();
@@ -27,41 +30,65 @@ pub async fn create(
         .to_string();
 
     let permissions_list: Vec<&str> = permissions.split(',').collect();
+    let url = backend_url.unwrap_or("http://localhost:5000");
+
+    // Format for client connection string
+    let connection_string = format!("{}:{}", url, raw_key);
 
     if json_output {
-        println!(
-            "{}",
-            serde_json::json!({
-                "success": true,
-                "data": {
-                    "key_id": key_id.to_string(),
-                    "api_key": raw_key,
-                    "name": name,
-                    "permissions": permissions_list,
-                    "expires": expires,
-                    "key_hash": key_hash
-                }
-            })
-        );
-    } else {
-        println!("{}", "✓ API key created successfully".green());
-        println!();
-        println!("  {} {}", "Key ID:".bold(), key_id);
-        println!("  {} {}", "Name:".bold(), name);
-        println!("  {} {:?}", "Permissions:".bold(), permissions_list);
-        println!("  {} {}", "Expires:".bold(), expires);
-        println!();
-        println!(
-            "{}",
-            "  API Key (save this - it won't be shown again):".yellow()
-        );
-        println!("  {}", raw_key.cyan().bold());
-        println!();
-        println!("{}", "  Add this to your mobile app to connect.".dimmed());
-    }
+        let json_data = serde_json::json!({
+            "success": true,
+            "data": {
+                "key_id": key_id.to_string(),
+                "api_key": raw_key,
+                "backend_url": url,
+                "connection_string": connection_string,
+                "name": name,
+                "permissions": permissions_list,
+                "expires": expires,
+                "key_hash": key_hash
+            }
+        });
 
-    // TODO: Store in database
-    // For now, just print the key
+        let output = serde_json::to_string_pretty(&json_data)?;
+
+        if let Some(file_path) = output_file {
+            fs::write(file_path, &output)?;
+            eprintln!("{} Written to {}", "✓".green(), file_path);
+        } else {
+            println!("{}", output);
+        }
+    } else {
+        let mut output = String::new();
+        output.push_str(&format!("Backend URL: {}\n", url));
+        output.push_str(&format!("API Key: {}\n", raw_key));
+        output.push_str(&format!("Connection String: {}\n", connection_string));
+        output.push_str(&format!("Key ID: {}\n", key_id));
+        output.push_str(&format!("Name: {}\n", name));
+        output.push_str(&format!("Permissions: {:?}\n", permissions_list));
+        output.push_str(&format!("Expires: {}\n", expires));
+
+        if let Some(file_path) = output_file {
+            fs::write(file_path, &output)?;
+            println!("{} API key created and written to {}", "✓".green(), file_path);
+        } else {
+            println!("{}", "✓ API key created successfully".green());
+            println!();
+            println!("  {} {}", "Backend URL:".bold(), url);
+            println!("  {} {}", "Key ID:".bold(), key_id);
+            println!("  {} {}", "Name:".bold(), name);
+            println!("  {} {:?}", "Permissions:".bold(), permissions_list);
+            println!("  {} {}", "Expires:".bold(), expires);
+            println!();
+            println!(
+                "{}",
+                "  Connection String (BackendURL:API_KEY):".yellow()
+            );
+            println!("  {}", connection_string.cyan().bold());
+            println!();
+            println!("{}", "  Add this to your mobile app to connect.".dimmed());
+        }
+    }
 
     Ok(())
 }

@@ -2,6 +2,58 @@
 
 This document outlines the phased release plan for MTG AI Suite, including infrastructure components and feature milestones.
 
+## Semantic Versioning
+
+We follow [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
+
+- **MAJOR**: Breaking API changes
+- **MINOR**: New features, backward compatible
+- **PATCH**: Bug fixes, backward compatible
+
+### Version Roadmap
+
+```
+v0.1.0 ──► v0.2.0 ──► v0.3.0 ──► v0.4.0 ──► v1.0.0 ──► v1.1.0 ──► v1.2.0
+  │          │          │          │          │          │          │
+Phase 1   Phase 2   Phase 3   Phase 4      GA      Phase 5   Phase 6
+Backend   Vector    Recog.   Frontend   RELEASE     AI      Multi-
+  API     Search    nition     MVP                         Backend
+```
+
+| Version | Phase | Target | Description |
+|---------|-------|--------|-------------|
+| **v0.1.0** | 1 | Jan 2025 | Core backend API (card search, health) |
+| **v0.2.0** | 2 | Feb 2025 | Vector search with Qdrant |
+| **v0.3.0** | 3 | Mar 2025 | Card recognition from images |
+| **v0.4.0** | 4 | Apr 2025 | Frontend MVP (PWA) |
+| **v1.0.0** | 4 | Apr 2025 | **🎉 GA Release** - Working frontend + backend |
+| **v1.1.0** | 5 | May 2025 | AI integration (play suggestions) |
+| **v1.2.0** | 6 | Jun 2025 | Multi-backend support |
+
+### What v1.0.0 Means
+
+**v1.0.0** is the first **General Availability (GA)** release with:
+
+✅ **Backend**
+- Card search API with fuzzy matching
+- Semantic search via Qdrant
+- Card recognition from images
+- Health and status endpoints
+
+✅ **Frontend**
+- Mobile-responsive PWA
+- Card browser with search/autocomplete
+- Camera capture for card recognition
+- Offline support
+
+✅ **Infrastructure**
+- Docker Compose deployment
+- PostgreSQL + Qdrant + Redis
+- Database migrations
+- CI/CD pipeline
+
+---
+
 ## Architecture Overview
 
 ```
@@ -345,16 +397,32 @@ volumes:
 
 ---
 
-## Milestones
+## Milestones & Versions
 
-| Milestone | Phase | Target | Key Deliverable |
-|-----------|-------|--------|-----------------|
-| **M1** | 1 | Jan 2025 | Card search API working |
-| **M2** | 2 | Feb 2025 | Semantic search with Qdrant |
-| **M3** | 3 | Mar 2025 | Card recognition from images |
-| **M4** | 4 | Apr 2025 | Mobile PWA released |
-| **M5** | 5 | May 2025 | AI play suggestions |
-| **M6** | 6 | Jun 2025 | Multi-backend support |
+| Version | Milestone | Phase | Target | Key Deliverable |
+|---------|-----------|-------|--------|-----------------|
+| **v0.1.0** | M1 | 1 | Jan 2025 | Card search API working |
+| **v0.2.0** | M2 | 2 | Feb 2025 | Semantic search with Qdrant |
+| **v0.3.0** | M3 | 3 | Mar 2025 | Card recognition from images |
+| **v0.4.0** | M4 | 4 | Apr 2025 | Frontend MVP (PWA) |
+| **v1.0.0** | GA | 4 | Apr 2025 | 🎉 **General Availability** |
+| **v1.1.0** | M5 | 5 | May 2025 | AI play suggestions |
+| **v1.2.0** | M6 | 6 | Jun 2025 | Multi-backend support |
+
+### Release Criteria for v1.0.0
+
+Before tagging v1.0.0, all of the following must be true:
+
+- [ ] Backend builds and passes all tests
+- [ ] Frontend builds and passes all tests
+- [ ] Card search returns results from database
+- [ ] Semantic search returns relevant cards
+- [ ] Card recognition identifies cards from images
+- [ ] PWA installs on mobile devices
+- [ ] Offline mode works for cached data
+- [ ] Docker Compose deploys full stack
+- [ ] API documentation is complete
+- [ ] No critical or high-severity bugs open
 
 ---
 

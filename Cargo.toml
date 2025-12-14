@@ -1,6 +1,14 @@
 [workspace]
 resolver = "2"
 members = [
+    # Framework crates (game-agnostic)
+    "crates/cardgame-core",
+    
+    # Game implementations
+    "crates/games/mtg",
+    "crates/games/template",
+    
+    # MTG-specific binaries (uses framework + mtg game)
     "crates/mtg-core",
     "crates/mtg-server",
     "crates/mtg-cli",

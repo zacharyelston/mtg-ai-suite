@@ -1,5 +1,7 @@
+from datetime import datetime, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from api.cards import router as cards_router
 
 app = FastAPI(
     title="MTG AI Suite API",
@@ -15,6 +17,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(cards_router)
+
 
 @app.get("/")
 async def root():
@@ -23,4 +27,8 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy",
+        "version": "0.1.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }

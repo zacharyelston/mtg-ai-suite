@@ -1,9 +1,16 @@
-modules = ["nodejs-20", "web", "python-3.11"]
+modules = ["rust-stable", "nodejs-20", "python-3.11"]
+
 [agent]
 expertMode = true
+integrations = ["github:1.0.0"]
 
 [nix]
-channel = "stable-25_05"
+channel = "stable-24_05"
+
+[env]
+RUST_LOG = "info"
+PORT = "8080"
+DATABASE_URL = "sqlite:./data/dev.db"
 
 [workflows]
 runButton = "Project"
@@ -12,6 +19,13 @@ runButton = "Project"
 name = "Project"
 mode = "parallel"
 author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p data && cargo run --bin mtg-server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -33,7 +47,11 @@ outputType = "webview"
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 8080
+externalPort = 80
+
 [deployment]
 deploymentTarget = "autoscale"
-run = ["npm", "run", "start", "--prefix", "frontend", "--", "-H", "0.0.0.0", "-p", "5000"]
-build = ["npm", "run", "build", "--prefix", "frontend"]
+run = ["sh", "-c", "mkdir -p data && cargo run --release --bin mtg-server"]
+build = ["cargo", "build", "--release"]

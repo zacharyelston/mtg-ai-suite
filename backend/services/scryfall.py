@@ -1,6 +1,6 @@
 import httpx
 from typing import Optional
-from ..app.config import get_settings
+from app.config import get_settings
 
 
 class ScryfallService:

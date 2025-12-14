@@ -4,7 +4,7 @@ const nextConfig = {
   images: {
     domains: ['cards.scryfall.io', 'c1.scryfall.com'],
   },
-  allowedDevOrigins: ['*'],
+  allowedDevOrigins: ['*.replit.dev', '*.replit.app', '*.riker.replit.dev'],
   async headers() {
     return [
       {

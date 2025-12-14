@@ -1,16 +1,85 @@
+'use client';
+
+import { useState } from 'react';
+import { SearchBar, CardGrid, CardDetail } from '@/components';
+import { searchCards, getRandomCard } from '@/lib/scryfall';
+import { Card } from '@/types/card';
+
 export default function Home() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [totalCards, setTotalCards] = useState(0);
+
+  const handleSearch = async (query: string) => {
+    setIsLoading(true);
+    setHasSearched(true);
+    try {
+      const result = await searchCards(query);
+      setCards(result.data);
+      setTotalCards(result.total_cards);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setCards([]);
+      setTotalCards(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRandomCard = async () => {
+    setIsLoading(true);
+    try {
+      const card = await getRandomCard();
+      setSelectedCard(card);
+    } catch (error) {
+      console.error('Failed to get random card:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            MTG AI Suite
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Magic: The Gathering AI-powered toolkit
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">MTG AI Suite</h1>
+          <p className="text-gray-300 mb-6">
+            Search the complete Magic: The Gathering card database
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+          <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+          
+          <button
+            onClick={handleRandomCard}
+            disabled={isLoading}
+            className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 rounded text-white font-medium transition-colors"
+            data-testid="random-card-button"
+          >
+            Random Card
+          </button>
+        </div>
+
+        {isLoading && (
+          <div className="text-center text-gray-400 py-12">
+            <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
+            <p>Loading...</p>
+          </div>
+        )}
+
+        {!isLoading && hasSearched && (
+          <div className="mb-4">
+            <p className="text-gray-400 text-sm">
+              Found {totalCards} card{totalCards !== 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
+
+        {!isLoading && hasSearched && <CardGrid cards={cards} onCardClick={setSelectedCard} />}
+
+        {!hasSearched && !isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
             <FeatureCard
               title="Card Database"
               description="Search and explore the complete MTG card database with semantic search"
@@ -32,20 +101,24 @@ export default function Home() {
               icon="🧠"
             />
           </div>
-        </div>
+        )}
+
+        {selectedCard && (
+          <CardDetail card={selectedCard} onClose={() => setSelectedCard(null)} />
+        )}
       </div>
     </main>
-  )
+  );
 }
 
-function FeatureCard({ 
-  title, 
-  description, 
-  icon 
-}: { 
-  title: string
-  description: string
-  icon: string 
+function FeatureCard({
+  title,
+  description,
+  icon,
+}: {
+  title: string;
+  description: string;
+  icon: string;
 }) {
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition-colors">
@@ -53,5 +126,5 @@ function FeatureCard({
       <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
       <p className="text-gray-400">{description}</p>
     </div>
-  )
+  );
 }
